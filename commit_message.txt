@@ -1,0 +1,9 @@
+feat: 初始化项目结构与核心Context
+
+- 使用Expo和TypeScript初始化项目
+- 安装所有核心依赖 (Navigation, Styled Components, etc.)
+- 建立符合GEMINI.md规范的目录结构
+- 创建并实现Theme, UserData, 和 Audio contexts
+- 设置包含首页和我的标签页的基础导航
+- 创建占位屏幕并修复背景渐变问题
+- 将所有代码注释更新为中文
