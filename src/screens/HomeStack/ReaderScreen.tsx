@@ -1,12 +1,11 @@
 import React from "react";
-import { ScrollView, View,StyleSheet } from "react-native";
+import { ScrollView, View, StyleSheet } from "react-native";
 import styled from "styled-components/native";
-import { useRoute, RouteProp } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useTheme, themes } from "../../contexts/ThemeContext";
-import { HomeStackParamList } from "../../navigation";
+import { useTheme } from "../../contexts/ThemeContext";
+import { articles } from "../../data/articles";
 
-type ReaderScreenRouteProp = RouteProp<HomeStackParamList, "Reader">;
+const FONT_FAMILY = 'FZJuZXFJW';
 
 const FullScreenLinearGradient = styled(LinearGradient)`
   flex: 1;
@@ -23,32 +22,57 @@ const ContentContainer = styled.ScrollView`
 `;
 
 const Title = styled.Text`
-  font-size: 24px;
+  font-size: 24;
   font-weight: bold;
   color: ${(props) => props.theme.text};
-  margin-bottom: 20px;
+  margin-bottom: 20;
+  text-align: center;
+  font-family: ${FONT_FAMILY};
 `;
 
-const Content = styled.Text`
-  font-size: 16px;
-  line-height: 24px;
+const ParagraphBase = styled.Text`
+  font-size: 18;
+  line-height: 30;
+  letter-spacing: 0.5;
   color: ${(props) => props.theme.text};
+  font-family: ${FONT_FAMILY};
+  margin-top: 15;
+`;
+
+const FirstParagraph = styled(ParagraphBase)`
+  text-align: right;
+  margin-top: 0;
+  font-size: 16;
+`;
+
+const Content = styled(ParagraphBase)``;
+
+const Spacer = styled.View`
+  height: 85px;
 `;
 
 const ReaderScreen = () => {
-  const route = useRoute<ReaderScreenRouteProp>();
   const { theme } = useTheme();
-  const { articleId } = route.params;
 
-  const article = {
-    title: "示例文章标题",
-    content: `这是一个\n\n示例文章\n\n的内容。文章ID是: ${articleId}\n\n在这里\n\n可以\n\n显示完\n\n整的\n\n文章内容，支持滚动阅读。\n\n你可以在这里添加更\n\n多的文章\n\n内容，比如段\n\n落、图片等等。\n\n这个阅读\n\n器界面会\n\n根据\n\n当前的主题（浅\n\n色或深色）\n\n来调\n\n整显示效果。`,
-  };
+  const randomIndex = Math.floor(Math.random() * articles.length);
+  const article = articles[randomIndex];
+
+  const articleBody = article.content.substring(article.content.indexOf('\n')).trim();
+
+  const bodyParagraphs = articleBody
+    .split(new RegExp('[\\r\\n]+'))
+    .map(p => p.trim())
+    .filter(p => p.length > 0)
+    .map(paragraph => `\u3000\u3000${paragraph}`);
 
   const renderContent = () => (
     <ContentContainer>
       <Title>{article.title}</Title>
-      <Content>{article.content}</Content>
+      <FirstParagraph>—— {article.author}</FirstParagraph>
+      {bodyParagraphs.map((p, index) => (
+        <Content key={index}>{p}</Content>
+      ))}
+      <Spacer />
     </ContentContainer>
   );
 
