@@ -42,7 +42,7 @@ const ReaderScreen = () => {
 
   const article = {
     title: "示例文章标题",
-    content: `这是一个示例文章的内容。文章ID是: ${articleId}\n\n在这里可以显示完整的文章内容，支持滚动阅读。\n\n你可以在这里添加更多的文章内容，比如段落、图片等等。\n\n这个阅读器界面会根据当前的主题（浅色或深色）来调整显示效果。`,
+    content: `这是一个\n\n示例文章\n\n的内容。文章ID是: ${articleId}\n\n在这里\n\n可以\n\n显示完\n\n整的\n\n文章内容，支持滚动阅读。\n\n你可以在这里添加更\n\n多的文章\n\n内容，比如段\n\n落、图片等等。\n\n这个阅读\n\n器界面会\n\n根据\n\n当前的主题（浅\n\n色或深色）\n\n来调\n\n整显示效果。`,
   };
 
   const renderContent = () => (

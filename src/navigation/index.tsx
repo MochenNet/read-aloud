@@ -1,9 +1,10 @@
-
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet } from 'react-native';
 
 import HomeScreen from '../screens/HomeStack/HomeScreen';
 import ReaderScreen from '../screens/HomeStack/ReaderScreen';
@@ -44,6 +45,10 @@ const AppNavigator = () => {
   const { theme } = useTheme();
   const currentTheme = themes[theme] || themes.light;
 
+  const gradientColors = theme === 'light' 
+    ? ['rgba(255, 255, 255, 0.9)', 'rgba(255, 255, 255, 1)'] 
+    : ['rgba(50, 50, 50, 0.9)','rgba(50, 50, 50, 1)'];
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -51,20 +56,28 @@ const AppNavigator = () => {
           let iconName;
 
           if (route.name === 'HomeTab') {
-            iconName = focused ? 'home' : 'home'; // 这里可以用不同的图标来表示选中状态
+            iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'MeTab') {
-            iconName = focused ? 'user-alt' : 'user';
+            iconName = focused ? 'person' : 'person-outline';
           }
 
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: currentTheme.text, // 示例颜色
+        headerShown: false,
+        tabBarActiveTintColor: currentTheme.text,
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          backgroundColor: currentTheme.card,
           borderTopWidth: 0,
+          elevation: 0, // 移除 Android 上的默认渲染效果，解决透明边框问题
+          backgroundColor: 'transparent',
+          position: 'absolute', // For gradient background to be visible
         },
-        headerShown: false,
+        tabBarBackground: () => (
+          <LinearGradient
+            colors={gradientColors}
+            style={StyleSheet.absoluteFill}
+          />
+        ),
       })}
     >
       <Tab.Screen name="HomeTab" component={HomeStackScreen} options={{ title: '首页' }} />
