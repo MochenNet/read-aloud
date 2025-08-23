@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   Animated,
+  Pressable,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Article } from '../../types/article';
@@ -16,14 +17,14 @@ interface DailyCardProps {
   onPlay: () => void;
   onPress: () => void;
   onRandomize: () => void;
-  animatedValue: Animated.Value;
+  scaleValue: Animated.Value;
 }
 
 const getImageSource = (imageUrl?: string) => {
   return imageUrl ? { uri: imageUrl } : require('../../assets/images/card-bg.png');
 };
 
-const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize, animatedValue }) => {
+const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize, scaleValue }) => {
   const [currentArticle, setCurrentArticle] = useState(article);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,61 +57,58 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
     onPress();
   };
 
-  const rotateY = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '90deg'],
-  });
-
   const animatedStyle = {
-    transform: [{ rotateY }],
+    transform: [{ scale: scaleValue }],
   };
 
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
-      <ImageBackground
-        source={getImageSource(currentArticle.imageUrl)}
-        style={styles.imageBackground}
-        resizeMode="cover"
-        imageStyle={{ borderRadius: 20 }}
-      >
-        {nextArticle && (
-          <Animated.Image
-            source={getImageSource(nextArticle.imageUrl)}
-            onLoad={onNextImageLoad}
-            style={[styles.imageOverlay, { opacity: imageFadeIn, borderRadius: 20 }]}
-            resizeMode="cover"
-          />
-        )}
-        <View style={styles.overlay}>
-          <View style={styles.topContainer}>
-            <View style={styles.tagContainer}>
-              <Text style={styles.tagText}>每日推荐</Text>
+    <Pressable style={{width: '100%'}} onPress={onPress}>
+      <Animated.View style={[styles.container, animatedStyle]}>
+        <ImageBackground
+          source={getImageSource(currentArticle.imageUrl)}
+          style={styles.imageBackground}
+          resizeMode="cover"
+          imageStyle={{ borderRadius: 20 }}
+        >
+          {nextArticle && (
+            <Animated.Image
+              source={getImageSource(nextArticle.imageUrl)}
+              onLoad={onNextImageLoad}
+              style={[styles.imageOverlay, { opacity: imageFadeIn, borderRadius: 20 }]}
+              resizeMode="cover"
+            />
+          )}
+          <View style={styles.overlay}>
+            <View style={styles.topContainer}>
+              <View style={styles.tagContainer}>
+                <Text style={styles.tagText}>每日推荐</Text>
+              </View>
+              <TouchableOpacity style={styles.randomizeButton} onPress={onRandomize}>
+                <Ionicons name="refresh-outline" size={18} color="white" />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.randomizeButton} onPress={onRandomize}>
-              <Ionicons name="refresh-outline" size={18} color="white" />
-            </TouchableOpacity>
-          </View>
 
-          <View style={styles.contentContainer}>
-            {isLoading || isInitializing ? (
-              <Text style={styles.title}>加载中...</Text>
-            ) : (
-              <>
-                <Text style={styles.title}>{currentArticle.title}</Text>
-                <View style={styles.separator} />
-                <Text style={styles.author}>{currentArticle.author}</Text>
-              </>
+            <View style={styles.contentContainer}>
+              {isLoading || isInitializing ? (
+                <Text style={styles.title}>加载中...</Text>
+              ) : (
+                <>
+                  <Text style={styles.title}>{currentArticle.title}</Text>
+                  <View style={styles.separator} />
+                  <Text style={styles.author}>{currentArticle.author}</Text>
+                </>
+              )}
+            </View>
+
+            {!(isLoading || isInitializing) && (
+              <TouchableOpacity style={styles.playButton} onPress={handleButtonPress}>
+                <Text style={styles.playButtonText}>开始阅读</Text>
+              </TouchableOpacity>
             )}
           </View>
-
-          {!(isLoading || isInitializing) && (
-            <TouchableOpacity style={styles.playButton} onPress={handleButtonPress}>
-              <Text style={styles.playButtonText}>开始阅读</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </ImageBackground>
-    </Animated.View>
+        </ImageBackground>
+      </Animated.View>
+    </Pressable>
   );
 };
 

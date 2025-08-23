@@ -79,7 +79,7 @@ const HomeScreen = () => {
   const { theme, currentTheme } = useTheme();
   const { play } = useAudio();
   const [dailyArticle, setDailyArticle] = useState<Article>(initialArticle);
-  const [flipAnimation] = useState(new Animated.Value(0));
+  const [scaleAnimation] = useState(new Animated.Value(1));
 
   const loadDailyData = useCallback(async () => {
     const randomIndex = Math.floor(Math.random() * articles.length);
@@ -113,13 +113,14 @@ const HomeScreen = () => {
 
   const handleCardPress = () => {
     if (!dailyArticle || dailyArticle.id === 'initial-placeholder') return;
-    Animated.timing(flipAnimation, {
-      toValue: 1,
-      duration: 400,
+
+    Animated.timing(scaleAnimation, {
+      toValue: 1.1,
+      duration: 10,
       useNativeDriver: true,
     }).start(() => {
       navigation.navigate('Reader', { articleId: dailyArticle.id });
-      flipAnimation.setValue(0);
+      scaleAnimation.setValue(1);
     });
   };
 
@@ -138,7 +139,7 @@ const HomeScreen = () => {
           onPlay={handlePlay}
           onPress={handleCardPress}
           onRandomize={loadDailyData}
-          animatedValue={flipAnimation}
+          scaleValue={scaleAnimation}
         />
       </CardContainer>
     </MainContent>
