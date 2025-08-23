@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { View, StyleSheet, SafeAreaView, Platform, Text, Animated } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import DailyCard from '../../components/specific/DailyCard';
-import { useUserData } from '../../contexts/UserDataContext';
 import { useAudio } from '../../contexts/AudioContext';
 import { HomeStackParamList } from '../../navigation';
 import { Article } from '../../types/article';
@@ -65,25 +64,38 @@ const CardContainer = styled.View`
   padding: 20px;
 `;
 
+// Create a default article for the initial render
+const initialArticle: Article = {
+  id: 'initial-placeholder', // Use a special ID to identify the initial state
+  title: '', // Title and author will be handled by the loading state in the card
+  author: '',
+  text: '',
+  audioUrl: '',
+  imageUrl: undefined, // No network image initially, so the card will use local one
+};
+
 const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { theme, currentTheme } = useTheme();
   const { play } = useAudio();
-  const [dailyArticle, setDailyArticle] = useState<Article | null>(null);
+  const [dailyArticle, setDailyArticle] = useState<Article>(initialArticle);
   const [flipAnimation] = useState(new Animated.Value(0));
 
   const loadDailyData = useCallback(async () => {
     const randomIndex = Math.floor(Math.random() * articles.length);
     const article = articles[randomIndex];
     const imageUrl = await fetchRandomImageUrl();
-    
-    // Set the new article with the new image URL
     setDailyArticle({ ...article, imageUrl: imageUrl || undefined });
   }, []);
 
-  useEffect(() => {
-    loadDailyData();
-  }, [loadDailyData]);
+  useFocusEffect(
+    useCallback(() => {
+      // Only load network data if it's the initial placeholder article
+      if (dailyArticle.id === 'initial-placeholder') {
+        loadDailyData();
+      }
+    }, [dailyArticle, loadDailyData])
+  );
 
   const date = new Date();
   const day = date.getDate();
@@ -100,7 +112,7 @@ const HomeScreen = () => {
   };
 
   const handleCardPress = () => {
-    if (!dailyArticle) return;
+    if (!dailyArticle || dailyArticle.id === 'initial-placeholder') return;
     Animated.timing(flipAnimation, {
       toValue: 1,
       duration: 400,
@@ -121,17 +133,13 @@ const HomeScreen = () => {
         </DateDisplay>
       </Header>
       <CardContainer>
-        {dailyArticle ? (
-          <DailyCard
-            article={dailyArticle}
-            onPlay={handlePlay}
-            onPress={handleCardPress}
-            onRandomize={loadDailyData}
-            animatedValue={flipAnimation}
-          />
-        ) : (
-          <View><Text>加载中...</Text></View>
-        )}
+        <DailyCard
+          article={dailyArticle}
+          onPlay={handlePlay}
+          onPress={handleCardPress}
+          onRandomize={loadDailyData}
+          animatedValue={flipAnimation}
+        />
       </CardContainer>
     </MainContent>
   );

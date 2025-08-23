@@ -19,15 +19,21 @@ interface DailyCardProps {
   animatedValue: Animated.Value;
 }
 
+const getImageSource = (imageUrl?: string) => {
+  return imageUrl ? { uri: imageUrl } : require('../../assets/images/card-bg.png');
+};
+
 const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize, animatedValue }) => {
   const [currentArticle, setCurrentArticle] = useState(article);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const imageFadeIn = useRef(new Animated.Value(0)).current;
 
+  const isInitializing = article.id === 'initial-placeholder';
+
   useEffect(() => {
     if (article.id !== currentArticle.id) {
-      setIsLoading(true); // Show loading text immediately
+      setIsLoading(true);
       setNextArticle(article);
     }
   }, [article, currentArticle.id]);
@@ -41,7 +47,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
       setCurrentArticle(article);
       setNextArticle(null);
       imageFadeIn.setValue(0);
-      setIsLoading(false); // Hide loading text and show new content
+      setIsLoading(false);
     });
   };
 
@@ -62,14 +68,14 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
       <ImageBackground
-        source={{ uri: currentArticle.imageUrl }}
+        source={getImageSource(currentArticle.imageUrl)}
         style={styles.imageBackground}
         resizeMode="cover"
         imageStyle={{ borderRadius: 20 }}
       >
         {nextArticle && (
           <Animated.Image
-            source={{ uri: nextArticle.imageUrl }}
+            source={getImageSource(nextArticle.imageUrl)}
             onLoad={onNextImageLoad}
             style={[styles.imageOverlay, { opacity: imageFadeIn, borderRadius: 20 }]}
             resizeMode="cover"
@@ -86,7 +92,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
           </View>
 
           <View style={styles.contentContainer}>
-            {isLoading ? (
+            {isLoading || isInitializing ? (
               <Text style={styles.title}>加载中...</Text>
             ) : (
               <>
@@ -97,8 +103,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
             )}
           </View>
 
-          {/* Hide button while loading */}
-          {!isLoading && (
+          {!(isLoading || isInitializing) && (
             <TouchableOpacity style={styles.playButton} onPress={handleButtonPress}>
               <Text style={styles.playButtonText}>开始阅读</Text>
             </TouchableOpacity>
@@ -112,7 +117,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    aspectRatio: 3 / 4,
+    aspectRatio: 3.2 / 4,
     borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
