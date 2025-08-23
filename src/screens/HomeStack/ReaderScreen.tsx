@@ -1,77 +1,70 @@
 import React from "react";
-import { ScrollView, View, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import styled from "styled-components/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../../contexts/ThemeContext";
 import { articles } from "../../data/articles";
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { HomeStackParamList } from '../../navigation';
+import { useHeaderHeight } from '@react-navigation/elements';
 
-// 定义要使用的字体名称 (需要和 App.tsx 中加载的键一致)
+// --- Types ---
+type ReaderScreenRouteProp = RouteProp<HomeStackParamList, 'Reader'>;
+
+// --- Styled Components ---
 const FONT_FAMILY = 'FZJuZXFJW';
-
-const FullScreenLinearGradient = styled(LinearGradient)`
-  flex: 1;
-`;
 
 const Container = styled.View`
   flex: 1;
   background-color: ${(props) => props.theme.background};
 `;
 
-const ContentContainer = styled.ScrollView`
+const ContentContainer = styled.ScrollView<{ paddingTop: number }>`
   flex: 1;
-  padding: 20px;
+  padding-horizontal: 20px;
+  padding-top: ${(props) => props.paddingTop}px;
 `;
 
 const Title = styled.Text`
-  font-size: 24;
+  font-size: 24px;
   font-weight: bold;
   color: ${(props) => props.theme.text};
-  margin-bottom: 20;
+  margin-bottom: 20px;
   text-align: center;
   font-family: ${FONT_FAMILY};
 `;
 
-const ParagraphBase = styled.Text`
-  font-size: 18;
-  line-height: 30;
-  letter-spacing: 0.5;
+const Author = styled.Text`
+  font-size: 16px;
   color: ${(props) => props.theme.text};
   font-family: ${FONT_FAMILY};
-  margin-top: 15;
+  text-align: right;
+`;
+
+const Paragraph = styled.Text`
+  font-size: 18px;
+  line-height: 30px;
+  letter-spacing: 0.5px;
+  color: ${(props) => props.theme.text};
+  font-family: ${FONT_FAMILY};
+  margin-top: 15px;
   text-align: justify;
 `;
 
-const FirstParagraph = styled(ParagraphBase)`
-  text-align: right;
-  margin-top: 0;
-  font-size: 16;
-`;
-
-const Content = styled(ParagraphBase)``;
-
-// 用于在内容底部创建额外空间的占位符
 const Spacer = styled.View`
-  height: 85px;
+  height: 120px;
 `;
 
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { HomeStackParamList } from '../../navigation';
-
-// ... (其他 imports)
-
-// 定义 ReaderScreen 的路由参数类型
-type ReaderScreenRouteProp = RouteProp<HomeStackParamList, 'Reader'>;
-
+// --- Component ---
 const ReaderScreen = () => {
   const { theme } = useTheme();
   const route = useRoute<ReaderScreenRouteProp>();
   const { articleId } = route.params;
+  const headerHeight = useHeaderHeight();
 
-  // 根据 articleId 查找文章
   const article = articles.find(a => a.id === articleId);
 
   if (!article) {
-    // 如果找不到文章，可以显示一个提示信息
     return (
       <Container>
         <Title>文章未找到</Title>
@@ -79,40 +72,34 @@ const ReaderScreen = () => {
     );
   }
 
-  // 从文章内容中提取正文 (跳过第一行)
   const articleBody = article.content.substring(article.content.indexOf('\n')).trim();
-
-
-  // 将正文分割成段落，并添加首行缩进
   const bodyParagraphs = articleBody
     .split(new RegExp('[\r\n]+'))
     .map(p => p.trim())
     .filter(p => p.length > 0)
     .map(paragraph => `\u3000\u3000${paragraph}`);
 
-  // 渲染文章内容的函数
   const renderContent = () => (
-    <ContentContainer>
+    <ContentContainer paddingTop={headerHeight + 20}>
       <Title>{article.title}</Title>
-      <FirstParagraph>—— {article.author}</FirstParagraph>
+      <Author>—— {article.author}</Author>
       {bodyParagraphs.map((p, index) => (
-        <Content key={index}>{p}</Content>
+        <Paragraph key={index}>{p}</Paragraph>
       ))}
       <Spacer />
     </ContentContainer>
   );
 
-  // 根据主题选择不同的背景
   if (theme === "light") {
     return (
       <View style={{ flex: 1, backgroundColor: "white" }}>
-        <FullScreenLinearGradient
+        <LinearGradient
           colors={["rgba(224, 247, 250, 0.7)", "transparent"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.8, y: 0.8 }}
           style={StyleSheet.absoluteFill}
         />
-        <FullScreenLinearGradient
+        <LinearGradient
           colors={["rgba(232, 245, 233, 0.7)", "transparent"]}
           start={{ x: 1, y: 0 }}
           end={{ x: 0.2, y: 0.8 }}

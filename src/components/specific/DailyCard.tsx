@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -20,6 +20,31 @@ interface DailyCardProps {
 }
 
 const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize, animatedValue }) => {
+  const [currentArticle, setCurrentArticle] = useState(article);
+  const [nextArticle, setNextArticle] = useState<Article | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const imageFadeIn = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (article.id !== currentArticle.id) {
+      setIsLoading(true); // Show loading text immediately
+      setNextArticle(article);
+    }
+  }, [article, currentArticle.id]);
+
+  const onNextImageLoad = () => {
+    Animated.timing(imageFadeIn, {
+      toValue: 1,
+      duration: 400,
+      useNativeDriver: true,
+    }).start(() => {
+      setCurrentArticle(article);
+      setNextArticle(null);
+      imageFadeIn.setValue(0);
+      setIsLoading(false); // Hide loading text and show new content
+    });
+  };
+
   const handleButtonPress = () => {
     onPlay();
     onPress();
@@ -34,18 +59,22 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
     transform: [{ rotateY }],
   };
 
-  const imageSource = article.imageUrl
-    ? { uri: article.imageUrl }
-    : require('../../assets/images/card-bg.png');
-
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
       <ImageBackground
-        source={imageSource}
+        source={{ uri: currentArticle.imageUrl }}
         style={styles.imageBackground}
         resizeMode="cover"
         imageStyle={{ borderRadius: 20 }}
       >
+        {nextArticle && (
+          <Animated.Image
+            source={{ uri: nextArticle.imageUrl }}
+            onLoad={onNextImageLoad}
+            style={[styles.imageOverlay, { opacity: imageFadeIn, borderRadius: 20 }]}
+            resizeMode="cover"
+          />
+        )}
         <View style={styles.overlay}>
           <View style={styles.topContainer}>
             <View style={styles.tagContainer}>
@@ -57,14 +86,23 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
           </View>
 
           <View style={styles.contentContainer}>
-            <Text style={styles.title}>{article.title}</Text>
-            <View style={styles.separator} />
-            <Text style={styles.author}>{article.author}</Text>
+            {isLoading ? (
+              <Text style={styles.title}>加载中...</Text>
+            ) : (
+              <>
+                <Text style={styles.title}>{currentArticle.title}</Text>
+                <View style={styles.separator} />
+                <Text style={styles.author}>{currentArticle.author}</Text>
+              </>
+            )}
           </View>
 
-          <TouchableOpacity style={styles.playButton} onPress={handleButtonPress}>
-            <Text style={styles.playButtonText}>开始阅读</Text>
-          </TouchableOpacity>
+          {/* Hide button while loading */}
+          {!isLoading && (
+            <TouchableOpacity style={styles.playButton} onPress={handleButtonPress}>
+              <Text style={styles.playButtonText}>开始阅读</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ImageBackground>
     </Animated.View>
@@ -87,11 +125,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     borderRadius: 20,
     overflow: 'hidden',
+    backgroundColor: '#333',
+  },
+  imageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     padding: 20,
     justifyContent: 'space-between',
   },

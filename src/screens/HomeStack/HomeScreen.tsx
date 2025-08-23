@@ -72,16 +72,15 @@ const HomeScreen = () => {
   const [dailyArticle, setDailyArticle] = useState<Article | null>(null);
   const [flipAnimation] = useState(new Animated.Value(0));
 
-  // 将数据加载逻辑封装成一个函数
   const loadDailyData = useCallback(async () => {
-    setDailyArticle(null); // Optional: show loading indicator while fetching
     const randomIndex = Math.floor(Math.random() * articles.length);
     const article = articles[randomIndex];
     const imageUrl = await fetchRandomImageUrl();
+    
+    // Set the new article with the new image URL
     setDailyArticle({ ...article, imageUrl: imageUrl || undefined });
   }, []);
 
-  // 初次加载时调用
   useEffect(() => {
     loadDailyData();
   }, [loadDailyData]);
@@ -127,7 +126,7 @@ const HomeScreen = () => {
             article={dailyArticle}
             onPlay={handlePlay}
             onPress={handleCardPress}
-            onRandomize={loadDailyData} // 传递刷新函数
+            onRandomize={loadDailyData}
             animatedValue={flipAnimation}
           />
         ) : (

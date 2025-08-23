@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -20,7 +20,6 @@ export type HomeStackParamList = {
 
 export type MeStackParamList = {
   Me: undefined;
-  // ... 其他“我的”页面栈
 };
 
 const HomeStack = createStackNavigator<HomeStackParamList>();
@@ -28,16 +27,45 @@ const MeStack = createStackNavigator<MeStackParamList>();
 const Tab = createBottomTabNavigator();
 
 const HomeStackScreen = () => (
-  <HomeStack.Navigator screenOptions={{ headerShown: false }}>
-    <HomeStack.Screen name="Home" component={HomeScreen} />
-    <HomeStack.Screen name="Reader" component={ReaderScreen} />
+  <HomeStack.Navigator
+    screenOptions={{
+      headerStyle: {
+        backgroundColor: themes.light.background, // 默认背景色
+      },
+      headerTintColor: themes.light.text, // 默认文字颜色
+      headerTitleStyle: {
+        fontWeight: 'bold',
+      },
+    }}
+  >
+    <HomeStack.Screen 
+      name="Home" 
+      component={HomeScreen} 
+      options={{ headerShown: false }} // 在主页隐藏导航栏
+    />
+    <HomeStack.Screen 
+      name="Reader" 
+      component={ReaderScreen} 
+      options={{
+        headerTransparent: true,
+        headerTitle: '',
+        headerBackground: () => (
+          <LinearGradient
+            colors={['rgba(255, 255, 255, 0.9)', 'transparent']}
+            style={{ flex: 1 }}
+          />
+        ),
+        headerStyle: {
+          borderBottomWidth: 0, // 确保没有额外的分割线
+        },
+      }}
+    />
   </HomeStack.Navigator>
 );
 
 const MeStackScreen = () => (
   <MeStack.Navigator screenOptions={{ headerShown: false }}>
     <MeStack.Screen name="Me" component={MeScreen} />
-    {/* 其他“我的”页面栈的屏幕会在这里添加 */}
   </MeStack.Navigator>
 );
 
@@ -54,25 +82,29 @@ const AppNavigator = () => {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           if (route.name === 'HomeTab') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'MeTab') {
             iconName = focused ? 'person' : 'person-outline';
           }
-
-          return <Icon name={iconName} size={20} color={color} />;
+          return <Icon name={iconName as string} size={20} color={color} />;
         },
         headerShown: false,
         tabBarActiveTintColor: currentTheme.text,
         tabBarInactiveTintColor: 'gray',
-        tabBarStyle: {
-          position: 'absolute',
-          backgroundColor: 'transparent',
-          borderTopWidth: 0,
-          elevation: 0, //  <-- 添加此行来移除安卓上的阴影/边框
-          borderTopColor: 'transparent', // <-- 添加此行以确保边框透明
-        },
+        tabBarStyle: ((route) => {
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
+          if (routeName === 'Reader') {
+            return { display: 'none' };
+          }
+          return {
+            position: 'absolute',
+            backgroundColor: 'transparent',
+            borderTopWidth: 0,
+            elevation: 0,
+            borderTopColor: 'transparent',
+          };
+        })(route),
         tabBarBackground: () => (
           <LinearGradient
             colors={gradientColors}
@@ -82,7 +114,6 @@ const AppNavigator = () => {
         tabBarLabelStyle: {
           fontFamily: 'TaoBaoMaiCaiTi',
           fontSize: 10,
-          
         },
       })}
     >

@@ -3,7 +3,7 @@ export interface Article {
   title: string;
   author?: string;
   text: string;
-  imageUrl?: string; // Re-add imageUrl as optional
+  imageUrl?: string; // Optional image URL from network
   audioUrl: string;
-  content?: string; // Add content as optional, as it's in the data but not always used directly
+  content?: string;
 }
