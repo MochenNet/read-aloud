@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Platform,
   Animated,
-  Pressable,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Article } from '../../types/article';
@@ -17,14 +16,13 @@ interface DailyCardProps {
   onPlay: () => void;
   onPress: () => void;
   onRandomize: () => void;
-  scaleValue: Animated.Value;
 }
 
 const getImageSource = (imageUrl?: string) => {
   return imageUrl ? { uri: imageUrl } : require('../../assets/images/card-bg.png');
 };
 
-const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize, scaleValue }) => {
+const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize }) => {
   const [currentArticle, setCurrentArticle] = useState(article);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,13 +55,9 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
     onPress();
   };
 
-  const animatedStyle = {
-    transform: [{ scale: scaleValue }],
-  };
-
   return (
-    <Pressable style={{width: '100%'}} onPress={onPress}>
-      <Animated.View style={[styles.container, animatedStyle]}>
+    <TouchableOpacity style={{width: '100%'}} onPress={onPress}>
+      <View style={styles.container}>
         <ImageBackground
           source={getImageSource(currentArticle.imageUrl)}
           style={styles.imageBackground}
@@ -107,8 +101,8 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
             )}
           </View>
         </ImageBackground>
-      </Animated.View>
-    </Pressable>
+      </View>
+    </TouchableOpacity>
   );
 };
 
