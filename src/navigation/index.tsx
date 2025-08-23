@@ -41,8 +41,8 @@ const MeStackScreen = () => (
 );
 
 const AppNavigator = () => {
-  const { theme, themes } = useTheme();
-  const currentTheme = themes[theme];
+  const { theme } = useTheme();
+  const currentTheme = themes[theme] || themes.light;
 
   return (
     <Tab.Navigator

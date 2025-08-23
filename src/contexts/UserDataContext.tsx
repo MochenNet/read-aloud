@@ -18,7 +18,7 @@ interface UserDataContextData extends UserData {
 const UserDataContext = createContext<UserDataContextData>({} as UserDataContextData);
 
 // 创建Provider组件
-export const UserDataProvider: React.FC = ({ children }) => {
+export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [userData, setUserData] = useState<UserData>({ favorites: [], history: [] });
 
   useEffect(() => {

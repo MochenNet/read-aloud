@@ -1,9 +1,7 @@
-feat: 初始化项目结构与核心Context
+feat(home): 创建并集成DailyCard组件
 
-- 使用Expo和TypeScript初始化项目
-- 安装所有核心依赖 (Navigation, Styled Components, etc.)
-- 建立符合GEMINI.md规范的目录结构
-- 创建并实现Theme, UserData, 和 Audio contexts
-- 设置包含首页和我的标签页的基础导航
-- 创建占位屏幕并修复背景渐变问题
-- 将所有代码注释更新为中文
+- 创建DailyCard.tsx组件，包含图片、文本和控制按钮
+- 在HomeScreen中集成DailyCard，并使用假数据进行渲染
+- 连接收藏按钮到UserDataContext
+- 连接播放按钮到AudioContext
+- 修复背景渐变和图标使用的bug

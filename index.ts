@@ -1,4 +1,6 @@
 import { registerRootComponent } from 'expo';
+import './web-polyfill';
+
 
 import App from './App';
 

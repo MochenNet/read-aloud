@@ -13,14 +13,20 @@ interface DailyCardProps {
   isFavorite: boolean;
   onToggleFavorite: () => void;
   onPlay: () => void;
+  onPress?: () => void;
 }
 
-const CardContainer = styled(ImageBackground)`
+const CardContainer = styled.TouchableOpacity`
   height: 500px; /* 示例高度 */
   border-radius: 20px;
   overflow: hidden;
   margin: 20px;
   justify-content: flex-end; /* 将内容推到底部 */
+`;
+
+const BackgroundImage = styled(ImageBackground)`
+  flex: 1;
+  justify-content: flex-end;
 `;
 
 const Overlay = styled.View`
@@ -55,30 +61,33 @@ const FavoriteButton = styled.TouchableOpacity`
   /* 收藏按钮样式 */
 `;
 
-const DailyCard: React.FC<DailyCardProps> = ({ 
-  imageUrl, 
-  title, 
-  text, 
-  isFavorite, 
-  onToggleFavorite, 
-  onPlay 
+const DailyCard: React.FC<DailyCardProps> = ({
+  imageUrl,
+  title,
+  text,
+  isFavorite,
+  onToggleFavorite,
+  onPlay,
+  onPress
 }) => {
   const { theme } = useTheme();
 
   return (
-    <CardContainer source={{ uri: imageUrl }}>
-      <Overlay>
-        <Title>{title}</Title>
-        <ContentText>{text}</ContentText>
-        <ControlsContainer>
-          <PlayButton onPress={onPlay}>
-            <Icon name="play-circle" size={48} color="#FFFFFF" />
-          </PlayButton>
-          <FavoriteButton onPress={onToggleFavorite}>
-            <Icon name={'heart'} solid={isFavorite} size={24} color="#FFFFFF" />
-          </FavoriteButton>
-        </ControlsContainer>
-      </Overlay>
+    <CardContainer onPress={onPress}>
+      <BackgroundImage source={{ uri: imageUrl }}>
+        <Overlay>
+          <Title>{title}</Title>
+          <ContentText>{text}</ContentText>
+          <ControlsContainer>
+            <PlayButton onPress={onPlay}>
+              <Icon name="play-circle" size={48} color="#FFFFFF" />
+            </PlayButton>
+            <FavoriteButton onPress={onToggleFavorite}>
+              <Icon name={'heart'} solid={isFavorite} size={24} color="#FFFFFF" />
+            </FavoriteButton>
+          </ControlsContainer>
+        </Overlay>
+      </BackgroundImage>
     </CardContainer>
   );
 };

@@ -27,10 +27,13 @@ export const themes = {
 };
 
 // 使用默认值创建Context
-const ThemeContext = createContext<ThemeContextData>({} as ThemeContextData);
+const ThemeContext = createContext<ThemeContextData>({
+  theme: 'light',
+  toggleTheme: () => {}
+});
 
 // 创建Provider组件
-export const ThemeProvider: React.FC = ({ children }) => {
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const systemScheme = useColorScheme();
   const [theme, setTheme] = useState<'light' | 'dark'>(systemScheme || 'light');
 

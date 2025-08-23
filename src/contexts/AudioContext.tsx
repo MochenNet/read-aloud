@@ -1,69 +1,89 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import TrackPlayer, { AppKilledPlaybackBehavior, Capability, Event, State, usePlaybackState, useProgress } from 'react-native-track-player';
+import { Audio } from 'expo-av';
 
 // 定义Context的形状
 interface AudioContextData {
   isPlaying: boolean;
   isBuffering: boolean;
   progress: { position: number; duration: number };
-  play: (track: any) => void;
+  play: (track: { url: string }) => void;
   pause: () => void;
-  // ... 其他音频控制方法
 }
 
 // 创建Context
 const AudioContext = createContext<AudioContextData>({} as AudioContextData);
 
-// 设置播放器
-const setupPlayer = async () => {
-  try {
-    await TrackPlayer.setupPlayer();
-    await TrackPlayer.updateOptions({
-      android: {
-        appKilledPlaybackBehavior: AppKilledPlaybackBehavior.StopPlaybackAndRemoveNotification,
-      },
-      capabilities: [
-        Capability.Play,
-        Capability.Pause,
-        Capability.SkipToNext,
-        Capability.SkipToPrevious,
-        Capability.Stop,
-      ],
-      compactCapabilities: [Capability.Play, Capability.Pause, Capability.SkipToNext],
-    });
-  } catch (error) {
-    console.error('设置播放器时出错', error);
-  }
-};
-
 // 创建Provider组件
-export const AudioProvider: React.FC = ({ children }) => {
-  const playbackState = usePlaybackState();
-  const progress = useProgress();
-  const [isPlayerReady, setPlayerReady] = useState(false);
+export const AudioProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(false);
+  const [progress, setProgress] = useState({ position: 0, duration: 0 });
 
-  useEffect(() => {
-    const init = async () => {
-      await setupPlayer();
-      setPlayerReady(true);
-    };
-    init();
-  }, []);
+  const onPlaybackStatusUpdate = (status: any) => {
+    if (!status.isLoaded) {
+      setIsPlaying(false);
+      setIsBuffering(false);
+    } else {
+      setIsPlaying(status.isPlaying);
+      setIsBuffering(status.isBuffering);
+      setProgress({
+        position: status.positionMillis / 1000,
+        duration: status.durationMillis / 1000,
+      });
+    }
+  };
 
-  const play = async (track: any) => {
-    if (!isPlayerReady) return;
-    await TrackPlayer.reset();
-    await TrackPlayer.add(track);
-    await TrackPlayer.play();
+  const play = async (track: { url: string }) => {
+    if (sound) {
+      await sound.unloadAsync();
+    }
+
+    try {
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: track.url },
+        { shouldPlay: true },
+        onPlaybackStatusUpdate
+      );
+      setSound(newSound);
+    } catch (error) {
+      console.error('播放音频时出错', error);
+    }
   };
 
   const pause = async () => {
-    await TrackPlayer.pause();
+    if (sound) {
+      await sound.pauseAsync();
+    }
   };
 
-  const isPlaying = playbackState.state === State.Playing;
-  const isBuffering = playbackState.state === State.Buffering;
+  // 组件卸载时卸载声音
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+  
+  // 设置音频模式以支持后台播放
+  useEffect(() => {
+    const setAudioMode = async () => {
+        try {
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: false,
+                playsInSilentModeIOS: true,
+                staysActiveInBackground: true,
+                shouldDuckAndroid: true,
+                playThroughEarpieceAndroid: false,
+            });
+        } catch (e) {
+            console.error('设置音频模式失败', e);
+        }
+    };
+    setAudioMode();
+  }, []);
+
 
   return (
     <AudioContext.Provider value={{ isPlaying, isBuffering, progress, play, pause }}>
