@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../../contexts/ThemeContext";
 import { articles } from "../../data/articles";
 
+// 定义要使用的字体名称 (需要和 App.tsx 中加载的键一致)
 const FONT_FAMILY = 'FZJuZXFJW';
 
 const FullScreenLinearGradient = styled(LinearGradient)`
@@ -37,6 +38,7 @@ const ParagraphBase = styled.Text`
   color: ${(props) => props.theme.text};
   font-family: ${FONT_FAMILY};
   margin-top: 15;
+  text-align: justify;
 `;
 
 const FirstParagraph = styled(ParagraphBase)`
@@ -47,6 +49,7 @@ const FirstParagraph = styled(ParagraphBase)`
 
 const Content = styled(ParagraphBase)``;
 
+// 用于在内容底部创建额外空间的占位符
 const Spacer = styled.View`
   height: 85px;
 `;
@@ -54,17 +57,21 @@ const Spacer = styled.View`
 const ReaderScreen = () => {
   const { theme } = useTheme();
 
+  // 随机选择一篇文章
   const randomIndex = Math.floor(Math.random() * articles.length);
   const article = articles[randomIndex];
 
+  // 从文章内容中提取正文 (跳过第一行)
   const articleBody = article.content.substring(article.content.indexOf('\n')).trim();
 
+  // 将正文分割成段落，并添加首行缩进
   const bodyParagraphs = articleBody
-    .split(new RegExp('[\\r\\n]+'))
+    .split(new RegExp('[\r\n]+'))
     .map(p => p.trim())
     .filter(p => p.length > 0)
     .map(paragraph => `\u3000\u3000${paragraph}`);
 
+  // 渲染文章内容的函数
   const renderContent = () => (
     <ContentContainer>
       <Title>{article.title}</Title>
@@ -76,6 +83,7 @@ const ReaderScreen = () => {
     </ContentContainer>
   );
 
+  // 根据主题选择不同的背景
   if (theme === "light") {
     return (
       <View style={{ flex: 1, backgroundColor: "white" }}>
