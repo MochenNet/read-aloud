@@ -1,94 +1,127 @@
-import React from 'react';
-import styled from 'styled-components/native';
-import { ImageBackground, Text, TouchableOpacity, View } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import { useTheme } from '../../contexts/ThemeContext';
 
-// 定义组件的Props
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Article } from '../../types/article';
+
 interface DailyCardProps {
-  imageUrl: string;
-  title: string;
-  text: string;
-  isFavorite: boolean;
-  onToggleFavorite: () => void;
+  article: Article;
   onPlay: () => void;
-  onPress?: () => void;
+  onPress: () => void;
 }
 
-const CardContainer = styled.TouchableOpacity`
-  height: 500px; /* 示例高度 */
-  border-radius: 20px;
-  overflow: hidden;
-  margin: 20px;
-  justify-content: flex-end; /* 将内容推到底部 */
-`;
-
-const BackgroundImage = styled(ImageBackground)`
-  flex: 1;
-  justify-content: flex-end;
-`;
-
-const Overlay = styled.View`
-  background-color: rgba(0, 0, 0, 0.4);
-  padding: 20px;
-`;
-
-const Title = styled.Text`
-  color: #FFFFFF;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 8px;
-`;
-
-const ContentText = styled.Text`
-  color: #FFFFFF;
-  font-size: 16px;
-  margin-bottom: 16px;
-`;
-
-const ControlsContainer = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const PlayButton = styled.TouchableOpacity`
-  /* 播放按钮样式 */
-`;
-
-const FavoriteButton = styled.TouchableOpacity`
-  /* 收藏按钮样式 */
-`;
-
-const DailyCard: React.FC<DailyCardProps> = ({
-  imageUrl,
-  title,
-  text,
-  isFavorite,
-  onToggleFavorite,
-  onPlay,
-  onPress
-}) => {
-  const { theme } = useTheme();
+const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress }) => {
+  const handleButtonPress = () => {
+    onPlay();
+    onPress();
+  };
 
   return (
-    <CardContainer onPress={onPress}>
-      <BackgroundImage source={{ uri: imageUrl }}>
-        <Overlay>
-          <Title>{title}</Title>
-          <ContentText>{text}</ContentText>
-          <ControlsContainer>
-            <PlayButton onPress={onPlay}>
-              <Icon name="play-circle" size={48} color="#FFFFFF" />
-            </PlayButton>
-            <FavoriteButton onPress={onToggleFavorite}>
-              <Icon name={'heart'} solid={isFavorite} size={24} color="#FFFFFF" />
-            </FavoriteButton>
-          </ControlsContainer>
-        </Overlay>
-      </BackgroundImage>
-    </CardContainer>
+    <View style={styles.container}>
+      <ImageBackground
+        source={require('../../assets/images/card-bg.png')} // 使用本地图片
+        style={styles.imageBackground}
+        resizeMode="contain"
+      >
+        <View style={styles.overlay}>
+          <View style={styles.tagContainer}>
+            <Text style={styles.tagText}>每日推荐</Text>
+          </View>
+
+          <View style={styles.contentContainer}>
+            <Text style={styles.title}>{article.title}</Text>
+            <View style={styles.separator} />
+            <Text style={styles.author}>{article.author}</Text>
+          </View>
+
+          <TouchableOpacity style={styles.playButton} onPress={handleButtonPress}>
+            {/* <Ionicons name="play" size={20} color="white" style={{ marginLeft: 4 }} /> */}
+            <Text style={styles.playButtonText}>开始阅读</Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    aspectRatio: 3 / 4,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 15,
+  },
+  imageBackground: {
+    flex: 1,
+    justifyContent: 'space-between',
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 20,
+    padding: 20,
+    justifyContent: 'space-between',
+  },
+  tagContainer: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 15,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  tagText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  contentContainer: {
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+  },
+  separator: {
+    height: 1,
+    width: '15%',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    marginVertical: 10,
+  },
+  author: {
+    fontSize: 16,
+    color: 'white',
+  },
+  playButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 25,
+    paddingVertical: 12,
+    alignSelf: 'center',
+    paddingHorizontal: 25,
+  },
+  playButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+});
 
 export default DailyCard;

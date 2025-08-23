@@ -54,15 +54,34 @@ const Spacer = styled.View`
   height: 85px;
 `;
 
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { HomeStackParamList } from '../../navigation';
+
+// ... (其他 imports)
+
+// 定义 ReaderScreen 的路由参数类型
+type ReaderScreenRouteProp = RouteProp<HomeStackParamList, 'Reader'>;
+
 const ReaderScreen = () => {
   const { theme } = useTheme();
+  const route = useRoute<ReaderScreenRouteProp>();
+  const { articleId } = route.params;
 
-  // 随机选择一篇文章
-  const randomIndex = Math.floor(Math.random() * articles.length);
-  const article = articles[randomIndex];
+  // 根据 articleId 查找文章
+  const article = articles.find(a => a.id === articleId);
+
+  if (!article) {
+    // 如果找不到文章，可以显示一个提示信息
+    return (
+      <Container>
+        <Title>文章未找到</Title>
+      </Container>
+    );
+  }
 
   // 从文章内容中提取正文 (跳过第一行)
   const articleBody = article.content.substring(article.content.indexOf('\n')).trim();
+
 
   // 将正文分割成段落，并添加首行缩进
   const bodyParagraphs = articleBody

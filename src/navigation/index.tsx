@@ -70,6 +70,8 @@ const AppNavigator = () => {
           position: 'absolute',
           backgroundColor: 'transparent',
           borderTopWidth: 0,
+          elevation: 0, //  <-- 添加此行来移除安卓上的阴影/边框
+          borderTopColor: 'transparent', // <-- 添加此行以确保边框透明
         },
         tabBarBackground: () => (
           <LinearGradient

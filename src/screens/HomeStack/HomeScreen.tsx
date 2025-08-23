@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { View, StyleSheet, SafeAreaView, Platform } from 'react-native';
+import { View, StyleSheet, SafeAreaView, Platform, Text } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import DailyCard from '../../components/specific/DailyCard';
 import { useUserData } from '../../contexts/UserDataContext';
 import { useAudio } from '../../contexts/AudioContext';
 import { HomeStackParamList } from '../../navigation';
+import { Article } from '../../types/article';
+import { articles } from '../../data/articles'; // 导入文章数据
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'Home'>;
 
@@ -31,7 +33,7 @@ const Header = styled.View`
 `;
 
 const AppName = styled.Text`
-  font-size: 28px;
+  font-size: 32px;
   color: ${props => props.theme.text};
   font-family: 'TaoBaoMaiCaiTi'; /* 使用自定义字体 */
 `;
@@ -67,34 +69,32 @@ const HomeScreen = () => {
   const { theme, currentTheme } = useTheme();
   const { favorites, toggleFavorite } = useUserData();
   const { play } = useAudio();
+  const [dailyArticle, setDailyArticle] = useState<Article | null>(null);
+
+  // 组件加载时随机选择一篇文章
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * articles.length);
+    setDailyArticle(articles[randomIndex]);
+  }, []);
 
   // 获取当前日期
   const date = new Date();
   const day = date.getDate();
   const month = date.toLocaleString('zh-CN', { month: 'long' });
 
-  // 临时的假数据
-  const dummyArticle = {
-    id: '1',
-    title: '关于告别',
-    text: '我们一生都在学着如何告别，却总是学不会。',
-    imageUrl: 'https://placehold.co/600x400/a2d2ff/333333?text=阅声', // 示例图片
-    audioUrl: 'https://www.cambridgeenglish.org/images/153149-movers-sample-listening-test-vol2.mp3' // 后面需要一个真实的音频URL
-  };
-
-  const isFavorite = favorites.includes(dummyArticle.id);
-
   const handlePlay = () => {
+    if (!dailyArticle) return;
     play({
-      id: dummyArticle.id,
-      url: dummyArticle.audioUrl,
-      title: dummyArticle.title,
-      artist: '阅·声'
+      id: dailyArticle.id,
+      url: dailyArticle.audioUrl, // 注意：当前数据中没有 audioUrl，需要补充
+      title: dailyArticle.title,
+      artist: dailyArticle.author
     });
   };
 
   const handleCardPress = () => {
-    navigation.navigate('Reader', { articleId: dummyArticle.id });
+    if (!dailyArticle) return;
+    navigation.navigate('Reader', { articleId: dailyArticle.id });
   };
 
   const renderContent = () => (
@@ -107,15 +107,16 @@ const HomeScreen = () => {
         </DateDisplay>
       </Header>
       <CardContainer>
-        <DailyCard
-          imageUrl={dummyArticle.imageUrl}
-          title={dummyArticle.title}
-          text={dummyArticle.text}
-          isFavorite={isFavorite}
-          onToggleFavorite={() => toggleFavorite(dummyArticle.id)}
-          onPlay={handlePlay}
-          onPress={handleCardPress}
-        />
+        {dailyArticle ? (
+          <DailyCard
+            article={dailyArticle}
+            onPlay={handlePlay}
+            onPress={handleCardPress}
+          />
+        ) : (
+          // 在文章加载前可以显示一个占位符
+          <View><Text>加载中...</Text></View>
+        )}
       </CardContainer>
     </MainContent>
   );
