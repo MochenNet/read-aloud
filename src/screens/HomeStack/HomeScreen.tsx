@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { View, StyleSheet, SafeAreaView, Platform, Text } from 'react-native';
+import { View, StyleSheet, SafeAreaView, Platform, Text, Animated } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import DailyCard from '../../components/specific/DailyCard';
 import { useUserData } from '../../contexts/UserDataContext';
 import { useAudio } from '../../contexts/AudioContext';
 import { HomeStackParamList } from '../../navigation';
 import { Article } from '../../types/article';
-import { articles } from '../../data/articles'; // 导入文章数据
+import { articles } from '../../data/articles';
+import { fetchRandomImageUrl } from '../../api';
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'Home'>;
 
@@ -35,7 +36,7 @@ const Header = styled.View`
 const AppName = styled.Text`
   font-size: 32px;
   color: ${props => props.theme.text};
-  font-family: 'TaoBaoMaiCaiTi'; /* 使用自定义字体 */
+  font-family: 'TaoBaoMaiCaiTi';
 `;
 
 const DateDisplay = styled.View`
@@ -53,48 +54,62 @@ const Month = styled.Text`
   font-size: 16px;
   font-weight: 300;
   margin-left: 5px;
-  margin-bottom: 5px; /* Aligns with the bottom of the day number */
+  margin-bottom: 5px;
   color: ${props => props.theme.text};
 `;
 
 const CardContainer = styled.View`
   flex: 1;
-  justify-content: flex-start; /* Align card to the top */
+  justify-content: flex-start;
   align-items: center;
-  padding: 20px; /* Add top padding */
+  padding: 20px;
 `;
 
 const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { theme, currentTheme } = useTheme();
-  const { favorites, toggleFavorite } = useUserData();
   const { play } = useAudio();
   const [dailyArticle, setDailyArticle] = useState<Article | null>(null);
+  const [flipAnimation] = useState(new Animated.Value(0));
 
-  // 组件加载时随机选择一篇文章
-  useEffect(() => {
+  // 将数据加载逻辑封装成一个函数
+  const loadDailyData = useCallback(async () => {
+    setDailyArticle(null); // Optional: show loading indicator while fetching
     const randomIndex = Math.floor(Math.random() * articles.length);
-    setDailyArticle(articles[randomIndex]);
+    const article = articles[randomIndex];
+    const imageUrl = await fetchRandomImageUrl();
+    setDailyArticle({ ...article, imageUrl: imageUrl || undefined });
   }, []);
 
-  // 获取当前日期
+  // 初次加载时调用
+  useEffect(() => {
+    loadDailyData();
+  }, [loadDailyData]);
+
   const date = new Date();
   const day = date.getDate();
   const month = date.toLocaleString('zh-CN', { month: 'long' });
 
   const handlePlay = () => {
-    if (!dailyArticle) return;
+    if (!dailyArticle || !dailyArticle.audioUrl) return;
     play({
       id: dailyArticle.id,
-      url: dailyArticle.audioUrl, // 注意：当前数据中没有 audioUrl，需要补充
+      url: dailyArticle.audioUrl,
       title: dailyArticle.title,
-      artist: dailyArticle.author
+      artist: dailyArticle.author,
     });
   };
 
   const handleCardPress = () => {
     if (!dailyArticle) return;
-    navigation.navigate('Reader', { articleId: dailyArticle.id });
+    Animated.timing(flipAnimation, {
+      toValue: 1,
+      duration: 400,
+      useNativeDriver: true,
+    }).start(() => {
+      navigation.navigate('Reader', { articleId: dailyArticle.id });
+      flipAnimation.setValue(0);
+    });
   };
 
   const renderContent = () => (
@@ -112,9 +127,10 @@ const HomeScreen = () => {
             article={dailyArticle}
             onPlay={handlePlay}
             onPress={handleCardPress}
+            onRandomize={loadDailyData} // 传递刷新函数
+            animatedValue={flipAnimation}
           />
         ) : (
-          // 在文章加载前可以显示一个占位符
           <View><Text>加载中...</Text></View>
         )}
       </CardContainer>

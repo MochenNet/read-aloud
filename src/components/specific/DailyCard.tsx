@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   View,
@@ -7,6 +6,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   Platform,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Article } from '../../types/article';
@@ -15,24 +15,45 @@ interface DailyCardProps {
   article: Article;
   onPlay: () => void;
   onPress: () => void;
+  onRandomize: () => void;
+  animatedValue: Animated.Value;
 }
 
-const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress }) => {
+const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize, animatedValue }) => {
   const handleButtonPress = () => {
     onPlay();
     onPress();
   };
 
+  const rotateY = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '90deg'],
+  });
+
+  const animatedStyle = {
+    transform: [{ rotateY }],
+  };
+
+  const imageSource = article.imageUrl
+    ? { uri: article.imageUrl }
+    : require('../../assets/images/card-bg.png');
+
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, animatedStyle]}>
       <ImageBackground
-        source={require('../../assets/images/card-bg.png')} // 使用本地图片
+        source={imageSource}
         style={styles.imageBackground}
-        resizeMode="contain"
+        resizeMode="cover"
+        imageStyle={{ borderRadius: 20 }}
       >
         <View style={styles.overlay}>
-          <View style={styles.tagContainer}>
-            <Text style={styles.tagText}>每日推荐</Text>
+          <View style={styles.topContainer}>
+            <View style={styles.tagContainer}>
+              <Text style={styles.tagText}>每日推荐</Text>
+            </View>
+            <TouchableOpacity style={styles.randomizeButton} onPress={onRandomize}>
+              <Ionicons name="refresh-outline" size={18} color="white" />
+            </TouchableOpacity>
           </View>
 
           <View style={styles.contentContainer}>
@@ -42,12 +63,11 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress }) => {
           </View>
 
           <TouchableOpacity style={styles.playButton} onPress={handleButtonPress}>
-            {/* <Ionicons name="play" size={20} color="white" style={{ marginLeft: 4 }} /> */}
             <Text style={styles.playButtonText}>开始阅读</Text>
           </TouchableOpacity>
         </View>
       </ImageBackground>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -75,12 +95,26 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'space-between',
   },
+  topContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   tagContainer: {
-    alignSelf: 'flex-start',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 15,
     paddingVertical: 6,
     paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  randomizeButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   tagText: {
     color: 'white',
@@ -89,6 +123,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     alignItems: 'center',
+    position: 'absolute',
+    top: 80,
+    left: 20,
+    right: 20,
+    bottom: 80,
+    justifyContent: 'center',
   },
   title: {
     fontSize: 28,
@@ -120,7 +160,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-    marginLeft: 8,
   },
 });
 
