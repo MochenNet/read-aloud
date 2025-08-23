@@ -46,8 +46,8 @@ const AppNavigator = () => {
   const currentTheme = themes[theme] || themes.light;
 
   const gradientColors = theme === 'light' 
-    ? ['rgba(255, 255, 255, 0.9)', 'rgba(255, 255, 255, 1)'] 
-    : ['rgba(50, 50, 50, 0.9)','rgba(50, 50, 50, 1)'];
+    ? ['rgba(255, 255, 255, 0.85)', 'rgba(255, 255, 255, 1)'] 
+    : ['rgba(50, 50, 50, 0.85)','rgba(50, 50, 50, 1)'];
 
   return (
     <Tab.Navigator
@@ -61,16 +61,15 @@ const AppNavigator = () => {
             iconName = focused ? 'person' : 'person-outline';
           }
 
-          return <Icon name={iconName} size={size} color={color} />;
+          return <Icon name={iconName} size={20} color={color} />;
         },
         headerShown: false,
         tabBarActiveTintColor: currentTheme.text,
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          borderTopWidth: 0,
-          elevation: 0, // 移除 Android 上的默认渲染效果，解决透明边框问题
+          position: 'absolute',
           backgroundColor: 'transparent',
-          position: 'absolute', // For gradient background to be visible
+          borderTopWidth: 0,
         },
         tabBarBackground: () => (
           <LinearGradient
@@ -78,6 +77,11 @@ const AppNavigator = () => {
             style={StyleSheet.absoluteFill}
           />
         ),
+        tabBarLabelStyle: {
+          fontFamily: 'TaoBaoMaiCaiTi',
+          fontSize: 10,
+          
+        },
       })}
     >
       <Tab.Screen name="HomeTab" component={HomeStackScreen} options={{ title: '首页' }} />
