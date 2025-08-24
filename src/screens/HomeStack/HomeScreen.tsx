@@ -10,7 +10,7 @@ import { useAudio } from '../../contexts/AudioContext';
 import { HomeStackParamList } from '../../navigation';
 import { Article } from '../../types/article';
 import { articles } from '../../data/articles';
-import { fetchRandomImageUrl } from '../../api';
+import { fetchRandomImageUrl, fetchRandomMusic } from '../../api';
 import RandomMusicPlayer from '../../components/specific/RandomMusicPlayer';
 import { musicTracks } from '../../data/music';
 import { Track } from '../../types/track';
@@ -20,7 +20,7 @@ type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'Home'>;
 // Styled Components
 const ThemedContainer = styled(View)`
   flex: 1;
-  background-color: ${props => props.theme.background};
+  background-color: ${(props: { theme: { background: string } }) => props.theme.background};
 `;
 
 const MainContent = styled(SafeAreaView)`
@@ -38,7 +38,7 @@ const Header = styled.View`
 
 const AppName = styled.Text`
   font-size: 36;
-  color: ${props => props.theme.text};
+  color: ${(props: { theme: { text: string } }) => props.theme.text};
   font-family: 'TaoBaoMaiCaiTi';
 `;
 
@@ -50,7 +50,7 @@ const DateDisplay = styled.View`
 const Day = styled.Text`
   font-size: 30;
   font-weight: 500;
-  color: ${props => props.theme.text};
+  color: ${(props: { theme: { text: string } }) => props.theme.text};
 `;
 
 const Month = styled.Text`
@@ -58,7 +58,7 @@ const Month = styled.Text`
   font-weight: 300;
   margin-left: 5;
   margin-bottom: 5;
-  color: ${props => props.theme.text};
+  color: ${(props: { theme: { text: string } }) => props.theme.text};
 `;
 
 const CardContainer = styled.View`
@@ -84,12 +84,21 @@ const HomeScreen = () => {
   const { play, stop, currentTrack, setCurrentTrack } = useAudio();
   const [dailyArticle, setDailyArticle] = useState<Article>(initialArticle);
 
-  const loadDailyData = useCallback(async () => {
-    const randomIndex = Math.floor(Math.random() * articles.length);
-    const article = articles[randomIndex];
-    const imageUrl = await fetchRandomImageUrl();
-    setDailyArticle({ ...article, imageUrl: imageUrl || undefined });
-  }, []);
+  const loadDailyData = useCallback(async (retryCount = 0) => {
+    try {
+        const randomIndex = Math.floor(Math.random() * articles.length);
+        const article = articles[randomIndex];
+        const imageUrl = await fetchRandomImageUrl();
+        setDailyArticle({ ...article, imageUrl: imageUrl || undefined });
+    } catch (error) {
+        if (retryCount < 2) {
+            loadDailyData(retryCount + 1); // 重试最多2次
+        } else {
+            console.error('Failed to load daily data after retries:', error);
+            setDailyArticle({ ...articles[0], imageUrl: undefined }); // 回退到默认文章
+        }
+    }
+}, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -122,22 +131,50 @@ const HomeScreen = () => {
     navigation.navigate('Reader', { articleId: dailyArticle.id });
   };
 
-  const handleRandomizeMusic = () => {
-    const randomIndex = Math.floor(Math.random() * musicTracks.length);
-    const randomTrack = musicTracks[randomIndex];
-    if (currentTrack && randomTrack.id === currentTrack.id) {
-      handleRandomizeMusic();
-      return;
+  const handleRandomizeMusic = async () => {
+    try {
+      const musicData = await fetchRandomMusic();
+      if (musicData) {
+        play({
+          id: musicData.url,
+          url: musicData.url,
+          title: musicData.title,
+          artist: '随机音乐'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch random music:', error);
+      // 回退到本地音乐列表
+      const randomIndex = Math.floor(Math.random() * musicTracks.length);
+      play(musicTracks[randomIndex]);
     }
-    play(randomTrack);
   };
 
   useEffect(() => {
+    const loadInitialMusic = async () => {
+      try {
+        const musicData = await fetchRandomMusic();
+        if (musicData) {
+          setCurrentTrack({
+            id: musicData.url,
+            url: musicData.url,
+            title: musicData.title,
+            artist: '随机音乐'
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch initial music:', error);
+        // 回退到本地音乐列表
+        const randomIndex = Math.floor(Math.random() * musicTracks.length);
+        setCurrentTrack(musicTracks[randomIndex]);
+      }
+    };
+  
+    // 只有当 currentTrack 为空时才加载初始音乐，确保只加载一次
     if (!currentTrack) {
-      const randomIndex = Math.floor(Math.random() * musicTracks.length);
-      setCurrentTrack(musicTracks[randomIndex]);
+      loadInitialMusic();
     }
-  }, [currentTrack]);
+  }, [currentTrack, setCurrentTrack]); // 添加 setCurrentTrack 到依赖数组
 
   const renderContent = () => (
     <MainContent>

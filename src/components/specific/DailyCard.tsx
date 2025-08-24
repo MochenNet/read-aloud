@@ -22,10 +22,67 @@ const getImageSource = (imageUrl?: string) => {
   return imageUrl ? { uri: imageUrl } : require('../../assets/images/card-bg.png');
 };
 
+interface MarqueeTextProps {
+  text: string;
+  style?: any;
+}
+
+const MarqueeText: React.FC<MarqueeTextProps> = ({ text, style }) => {
+  const [textWidth, setTextWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const scrollAnim = useRef(new Animated.Value(0)).current;
+
+  const onTextLayout = (event: any) => {
+    setTextWidth(event.nativeEvent.layout.width);
+  };
+
+  const onContainerLayout = (event: any) => {
+    setContainerWidth(event.nativeEvent.layout.width);
+  };
+
+  useEffect(() => {
+    if (textWidth > containerWidth) {
+      scrollAnim.setValue(0);
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(scrollAnim, {
+            toValue: -(textWidth - containerWidth + 10), // 10 for some padding
+            duration: (textWidth - containerWidth) * 15, // Adjust speed as needed
+            useNativeDriver: true,
+          }),
+          Animated.delay(1000), // Add a delay before looping back
+          Animated.timing(scrollAnim, {
+            toValue: 0,
+            duration: (textWidth - containerWidth) * 15, // Adjust speed as needed
+            useNativeDriver: true,
+          }),
+          Animated.delay(1000), // Add a delay before starting again
+        ]),
+      ).start();
+    } else {
+      scrollAnim.stopAnimation();
+      scrollAnim.setValue(0);
+    }
+  }, [textWidth, containerWidth, text]);
+
+  return (
+    <View style={{ overflow: 'hidden', flexDirection: 'row' }} onLayout={onContainerLayout}>
+      <Animated.Text
+        style={[{ transform: [{ translateX: scrollAnim }] }, style]}
+        onLayout={onTextLayout}
+        numberOfLines={1}
+      >
+        {text}
+      </Animated.Text>
+    </View>
+  );
+};
+
 const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize }) => {
   const [currentArticle, setCurrentArticle] = useState(article);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const imageFadeIn = useRef(new Animated.Value(0)).current;
 
   const isInitializing = article.id === 'initial-placeholder';
@@ -50,9 +107,11 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
     });
   };
 
-  const handleButtonPress = () => {
-    onPlay();
-    onPress();
+  const onNextImageError = () => {
+    setError('图片加载失败，使用默认背景');
+    setCurrentArticle({ ...article, imageUrl: undefined });
+    setNextArticle(null);
+    setIsLoading(false);
   };
 
   return (
@@ -68,6 +127,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
             <Animated.Image
               source={getImageSource(nextArticle.imageUrl)}
               onLoad={onNextImageLoad}
+              onError={onNextImageError} // 新增错误处理
               style={[styles.imageOverlay, { opacity: imageFadeIn, borderRadius: 20 }]}
               resizeMode="cover"
             />
@@ -87,7 +147,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
                 <Text style={styles.title}>加载中...</Text>
               ) : (
                 <>
-                  <Text style={styles.title}>{currentArticle.title}</Text>
+                  <MarqueeText text={currentArticle.title} style={styles.title} />
                   <View style={styles.separator} />
                   <Text style={styles.author}>{currentArticle.author}</Text>
                 </>
@@ -95,7 +155,13 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
             </View>
 
             {!(isLoading || isInitializing) && (
-              <TouchableOpacity style={styles.playButton} onPress={handleButtonPress}>
+              <TouchableOpacity 
+                style={styles.playButton} 
+                onPress={() => {
+                  onPlay();
+                  onPress();
+                }}
+              >
                 <Text style={styles.playButtonText}>开始阅读</Text>
               </TouchableOpacity>
             )}
@@ -172,7 +238,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: 'white',
-    textAlign: 'center',
+    textAlign: 'left', // Changed to left for marquee effect
   },
   separator: {
     height: 1,
@@ -199,6 +265,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  errorText: { color: 'red', textAlign: 'center', marginTop: 10 },
 });
 
 export default DailyCard;

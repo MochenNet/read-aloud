@@ -16,21 +16,22 @@
       "supportsTablet": true
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.rnreadaloud"
+      "permissions": ["INTERNET"]
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/adaptive-icon.png",
+      "backgroundColor": "#ffffff"
     },
-    "plugins": [],
-    "extra": {
-      "eas": {
-        "projectId": "1fd11a51-a528-4631-ad73-e7b4c193b09a"
-      }
+    "edgeToEdgeEnabled": true,
+    "package": "com.anonymous.rnreadaloud"
+  },
+  "web": {
+    "favicon": "./assets/favicon.png"
+  },
+  "plugins": [],
+  "extra": {
+    "eas": {
+      "projectId": "1fd11a51-a528-4631-ad73-e7b4c193b09a"
     }
   }
 }
