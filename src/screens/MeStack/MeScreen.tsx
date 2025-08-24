@@ -12,7 +12,7 @@ const Container = styled.View`
 
 const Title = styled.Text`
   color: ${(props) => props.theme.text};
-  font-size: 24px;
+  font-size: 24;
 `;
 
 const MeScreen = () => {
@@ -23,13 +23,13 @@ const MeScreen = () => {
     return (
       <View style={{ flex: 1, backgroundColor: "white" }}>
         <LinearGradient
-          colors={["rgba(224, 247, 250, 0.7)", "transparent"]}
+          colors={["rgba(158, 237, 249, 0.7)'", "transparent"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.8, y: 0.8 }}
           style={StyleSheet.absoluteFill}
         />
         <LinearGradient
-          colors={["rgba(232, 245, 233, 0.7)", "transparent"]}
+          colors={["rgba(185, 243, 190, 0.7)", "transparent"]}
           start={{ x: 1, y: 0 }}
           end={{ x: 0.2, y: 0.8 }}
           style={StyleSheet.absoluteFill}

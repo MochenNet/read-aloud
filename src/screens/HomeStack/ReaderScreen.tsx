@@ -21,38 +21,38 @@ const Container = styled.View`
 
 const ContentContainer = styled.ScrollView<{ paddingTop: number }>`
   flex: 1;
-  padding-horizontal: 20px;
-  padding-top: ${(props) => props.paddingTop}px;
+  padding-horizontal: 20;
+  padding-top: ${(props) => props.paddingTop};
 `;
 
 const Title = styled.Text`
-  font-size: 24px;
+  font-size: 24;
   font-weight: bold;
   color: ${(props) => props.theme.text};
-  margin-bottom: 20px;
+  margin-bottom: 20;
   text-align: center;
   font-family: ${FONT_FAMILY};
 `;
 
 const Author = styled.Text`
-  font-size: 16px;
+  font-size: 16;
   color: ${(props) => props.theme.text};
   font-family: ${FONT_FAMILY};
   text-align: right;
 `;
 
 const Paragraph = styled.Text`
-  font-size: 18px;
-  line-height: 30px;
-  letter-spacing: 0.5px;
+  font-size: 18;
+  line-height: 30;
+  letter-spacing: 0.5;
   color: ${(props) => props.theme.text};
   font-family: ${FONT_FAMILY};
-  margin-top: 15px;
+  margin-top: 15;
   text-align: justify;
 `;
 
 const Spacer = styled.View`
-  height: 120px;
+  height: 120;
 `;
 
 // --- Component ---

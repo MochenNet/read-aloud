@@ -1,7 +1,12 @@
 export const fetchRandomImageUrl = async (): Promise<string | null> => {
   const apiUrl = 'https://api.52vmy.cn/api/img/tu/view';
+    const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+
   try {
-    const response = await fetch(apiUrl);
+    const response = await fetch(apiUrl, { signal: controller.signal });
+    clearTimeout(timeoutId); // Clear timeout on success
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -11,6 +16,7 @@ export const fetchRandomImageUrl = async (): Promise<string | null> => {
     }
     return null;
   } catch (error) {
+    clearTimeout(timeoutId); // Clear timeout on error
     console.error('Failed to fetch random image URL:', error);
     return null;
   }

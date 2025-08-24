@@ -56,7 +56,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
   };
 
   return (
-    <TouchableOpacity style={{width: '100%'}} onPress={onPress}>
+    <TouchableOpacity style={{width: '100%'}} onPress={() => {}}>
       <View style={styles.container}>
         <ImageBackground
           source={getImageSource(currentArticle.imageUrl)}
@@ -109,13 +109,13 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    aspectRatio: 3.2 / 4,
+    height:  Platform.OS === 'android' ? '82%' : 400,
     borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
-    elevation: 15,
+    elevation: Platform.OS === 'android' ? 0 : 15,
   },
   imageBackground: {
     flex: 1,
@@ -132,7 +132,8 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     justifyContent: 'space-between',
   },
   topContainer: {
@@ -163,11 +164,8 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     alignItems: 'center',
-    position: 'absolute',
-    top: 80,
-    left: 20,
-    right: 20,
-    bottom: 80,
+    flex: 1,
+    marginVertical: 20,
     justifyContent: 'center',
   },
   title: {

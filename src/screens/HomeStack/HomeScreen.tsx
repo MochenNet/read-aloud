@@ -11,6 +11,9 @@ import { HomeStackParamList } from '../../navigation';
 import { Article } from '../../types/article';
 import { articles } from '../../data/articles';
 import { fetchRandomImageUrl } from '../../api';
+import RandomMusicPlayer from '../../components/specific/RandomMusicPlayer';
+import { musicTracks } from '../../data/music';
+import { Track } from '../../types/track';
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'Home'>;
 
@@ -22,18 +25,19 @@ const ThemedContainer = styled(View)`
 
 const MainContent = styled(SafeAreaView)`
   flex: 1;
-  padding-top: ${Platform.OS === 'android' ? '25px' : '0'};
+  padding-top: ${Platform.OS === 'android' ? '25' : '0'};
 `;
 
 const Header = styled.View`
-  padding: 10px 20px;
+  paddingVertical: 10;
+  paddingHorizontal: 20;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 `;
 
 const AppName = styled.Text`
-  font-size: 32px;
+  font-size: 36;
   color: ${props => props.theme.text};
   font-family: 'TaoBaoMaiCaiTi';
 `;
@@ -44,16 +48,16 @@ const DateDisplay = styled.View`
 `;
 
 const Day = styled.Text`
-  font-size: 30px;
+  font-size: 30;
   font-weight: 500;
   color: ${props => props.theme.text};
 `;
 
 const Month = styled.Text`
-  font-size: 16px;
+  font-size: 16;
   font-weight: 300;
-  margin-left: 5px;
-  margin-bottom: 5px;
+  margin-left: 5;
+  margin-bottom: 5;
   color: ${props => props.theme.text};
 `;
 
@@ -61,7 +65,7 @@ const CardContainer = styled.View`
   flex: 1;
   justify-content: flex-start;
   align-items: center;
-  padding: 20px;
+  paddingHorizontal: 20;
 `;
 
 // Create a default article for the initial render
@@ -77,7 +81,7 @@ const initialArticle: Article = {
 const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { theme, currentTheme } = useTheme();
-  const { play } = useAudio();
+  const { play, stop, currentTrack, setCurrentTrack } = useAudio();
   const [dailyArticle, setDailyArticle] = useState<Article>(initialArticle);
 
   const loadDailyData = useCallback(async () => {
@@ -93,6 +97,9 @@ const HomeScreen = () => {
       if (dailyArticle.id === 'initial-placeholder') {
         loadDailyData();
       }
+      return () => {
+        stop();
+      }
     }, [dailyArticle, loadDailyData])
   );
 
@@ -100,20 +107,37 @@ const HomeScreen = () => {
   const day = date.getDate();
   const month = date.toLocaleString('zh-CN', { month: 'long' });
 
-  const handlePlay = () => {
+  const handlePlayArticle = () => {
     if (!dailyArticle || !dailyArticle.audioUrl) return;
     play({
       id: dailyArticle.id,
       url: dailyArticle.audioUrl,
       title: dailyArticle.title,
       artist: dailyArticle.author,
-    });
+    } as Track);
   };
 
   const handleCardPress = () => {
     if (!dailyArticle || dailyArticle.id === 'initial-placeholder') return;
     navigation.navigate('Reader', { articleId: dailyArticle.id });
   };
+
+  const handleRandomizeMusic = () => {
+    const randomIndex = Math.floor(Math.random() * musicTracks.length);
+    const randomTrack = musicTracks[randomIndex];
+    if (currentTrack && randomTrack.id === currentTrack.id) {
+      handleRandomizeMusic();
+      return;
+    }
+    play(randomTrack);
+  };
+
+  useEffect(() => {
+    if (!currentTrack) {
+      const randomIndex = Math.floor(Math.random() * musicTracks.length);
+      setCurrentTrack(musicTracks[randomIndex]);
+    }
+  }, [currentTrack]);
 
   const renderContent = () => (
     <MainContent>
@@ -125,9 +149,10 @@ const HomeScreen = () => {
         </DateDisplay>
       </Header>
       <CardContainer>
+        <RandomMusicPlayer onRandomize={handleRandomizeMusic} />
         <DailyCard
           article={dailyArticle}
-          onPlay={handlePlay}
+          onPlay={handlePlayArticle}
           onPress={handleCardPress}
           onRandomize={loadDailyData}
         />
@@ -139,13 +164,13 @@ const HomeScreen = () => {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
         <LinearGradient
-          colors={['rgba(224, 247, 250, 0.7)', 'transparent']}
+          colors={['rgba(158, 237, 249, 0.7)', 'transparent']}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.8, y: 0.8 }}
           style={StyleSheet.absoluteFill}
         />
         <LinearGradient
-          colors={['rgba(232, 245, 233, 0.7)', 'transparent']}
+          colors={['rgba(185, 243, 190, 0.7)', 'transparent']}
           start={{ x: 1, y: 0 }}
           end={{ x: 0.2, y: 0.8 }}
           style={StyleSheet.absoluteFill}

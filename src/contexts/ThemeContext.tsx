@@ -8,6 +8,7 @@ import { ThemeProvider as StyledThemeProvider } from 'styled-components/native';
 interface ThemeContextData {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
+  currentTheme: typeof themes.light;
 }
 
 // 定义主题颜色
@@ -29,7 +30,8 @@ export const themes = {
 // 使用默认值创建Context
 const ThemeContext = createContext<ThemeContextData>({
   theme: 'light',
-  toggleTheme: () => {}
+  toggleTheme: () => {},
+  currentTheme: themes.light,
 });
 
 // 创建Provider组件
@@ -64,7 +66,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const currentTheme = themes[theme];
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, currentTheme }}>
       <StyledThemeProvider theme={currentTheme}>
         {children}
       </StyledThemeProvider>

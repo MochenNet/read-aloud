@@ -1,13 +1,17 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Audio } from 'expo-av';
+import { Track } from '../types/track';
 
 // 定义Context的形状
 interface AudioContextData {
   isPlaying: boolean;
   isBuffering: boolean;
   progress: { position: number; duration: number };
-  play: (track: { url: string }) => void;
+  currentTrack: Track | null;
+  play: (track: Track) => void;
   pause: () => void;
+  stop: () => void;
+  setCurrentTrack: (track: Track) => void;
 }
 
 // 创建Context
@@ -19,6 +23,7 @@ export const AudioProvider: React.FC<{children: React.ReactNode}> = ({ children 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
   const [progress, setProgress] = useState({ position: 0, duration: 0 });
+  const [currentTrack, setCurrentTrackState] = useState<Track | null>(null);
 
   const onPlaybackStatusUpdate = (status: any) => {
     if (!status.isLoaded) {
@@ -34,8 +39,13 @@ export const AudioProvider: React.FC<{children: React.ReactNode}> = ({ children 
     }
   };
 
-  const play = async (track: { url: string }) => {
+  const play = async (track: Track) => {
     if (sound) {
+      const status = await sound.getStatusAsync();
+      if (status.isLoaded && status.uri === track.url) {
+        await sound.playAsync();
+        return;
+      }
       await sound.unloadAsync();
     }
 
@@ -46,6 +56,7 @@ export const AudioProvider: React.FC<{children: React.ReactNode}> = ({ children 
         onPlaybackStatusUpdate
       );
       setSound(newSound);
+      setCurrentTrackState(track);
     } catch (error) {
       console.error('播放音频时出错', error);
     }
@@ -55,6 +66,19 @@ export const AudioProvider: React.FC<{children: React.ReactNode}> = ({ children 
     if (sound) {
       await sound.pauseAsync();
     }
+  };
+
+  const stop = async () => {
+    if (sound) {
+      await sound.unloadAsync();
+      setSound(null);
+      setCurrentTrackState(null);
+      setProgress({ position: 0, duration: 0 });
+    }
+  };
+
+  const setCurrentTrack = (track: Track) => {
+    setCurrentTrackState(track);
   };
 
   // 组件卸载时卸载声音
@@ -86,7 +110,7 @@ export const AudioProvider: React.FC<{children: React.ReactNode}> = ({ children 
 
 
   return (
-    <AudioContext.Provider value={{ isPlaying, isBuffering, progress, play, pause }}>
+    <AudioContext.Provider value={{ isPlaying, isBuffering, progress, currentTrack, play, pause, stop, setCurrentTrack }}>
       {children}
     </AudioContext.Provider>
   );
