@@ -164,15 +164,15 @@ const HomeScreen = () => {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
         <LinearGradient
-          colors={['rgba(158, 237, 249, 0.7)', 'transparent']}
+          colors={['rgba(183, 245, 255, 1)', 'transparent']}
           start={{ x: 0, y: 0 }}
-          end={{ x: 0.8, y: 0.8 }}
+          end={{ x: 0.8, y: 1.2 }}
           style={StyleSheet.absoluteFill}
         />
         <LinearGradient
-          colors={['rgba(185, 243, 190, 0.7)', 'transparent']}
+          colors={['rgba(208, 255, 212, 0.7)', 'transparent']}
           start={{ x: 1, y: 0 }}
-          end={{ x: 0.2, y: 0.8 }}
+          end={{ x: 0.2, y: 1 }}
           style={StyleSheet.absoluteFill}
         />
         {renderContent()}

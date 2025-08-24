@@ -25,7 +25,7 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
   };
 
   return (
-    <View style={[styles.container, {     backgroundColor: 'rgba(255, 255, 255, 0.5)', }]}>
+    <View style={[styles.container, {     backgroundColor: 'rgba(255, 255, 255, 0.33)', }]}>
       <View style={styles.trackInfo}>
         <Text style={[styles.trackTitle, { color: currentTheme.text }]} numberOfLines={1}>
           {currentTrack ? currentTrack.title : '暂无音乐'}

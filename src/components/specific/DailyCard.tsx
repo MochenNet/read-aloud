@@ -56,7 +56,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
   };
 
   return (
-    <TouchableOpacity style={{width: '100%'}} onPress={() => {}}>
+    <View style={{width: '100%'}}>
       <View style={styles.container}>
         <ImageBackground
           source={getImageSource(currentArticle.imageUrl)}
@@ -102,7 +102,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
           </View>
         </ImageBackground>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 

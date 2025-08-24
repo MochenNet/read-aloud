@@ -73,9 +73,9 @@ const AppNavigator = () => {
   const { theme } = useTheme();
   const currentTheme = themes[theme] || themes.light;
 
-  const gradientColors = theme === 'light' 
-    ? ['rgba(255, 255, 255, 0.85)', 'rgba(255, 255, 255, 1)'] 
-    : ['rgba(50, 50, 50, 0.85)','rgba(50, 50, 50, 1)'];
+    const gradientColors = theme === 'light' 
+    ? ['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.7)'] 
+    : ['rgba(50, 50, 50, 0.15)','rgba(50, 50, 50, 0.7)'];
 
   return (
     <Tab.Navigator
