@@ -6,7 +6,7 @@ import { ThemeProvider as StyledThemeProvider } from 'styled-components/native';
 // Define the shape of the theme objects
 export const themes = {
   light: {
-    backgroundColor: '#F4F2FF',
+    backgroundColor: '#F2F7FF',
     background: ['#F4F2FF', '#F2F7FF', '#B4DDE0'],
     text: '#000000',
     card: 'rgba(255, 255, 255, 0.8)',

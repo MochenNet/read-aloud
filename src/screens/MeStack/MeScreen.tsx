@@ -7,6 +7,7 @@ import {
   Platform,
   View,
 } from "react-native";
+import { Linking } from "react-native";
 import styled from "styled-components/native";
 import Toast from 'react-native-toast-message'; // 导入 Toast
 import * as Clipboard from 'expo-clipboard'; // 导入 Clipboard
@@ -175,9 +176,9 @@ const MeScreen = () => {
             <MenuItemText>{'我的收藏'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.text} />
           </MenuItem>
-          <MenuItem onPress={() => navigation.navigate('Settings')}> {/* 修改导航目标 */}
-            <Ionicons name="apps-outline" size={24} color={colors.text} /> {/* 更换图标 */}
-            <MenuItemText>{'更多应用'}</MenuItemText> {/* 修改文本 */}
+          <MenuItem onPress={() => Linking.openURL('https://www.123pan.com/s/csSaTd-6Yxw3.html')}>
+            <Ionicons name="apps-outline" size={24} color={colors.text} />
+            <MenuItemText>{'更多应用'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
           <MenuItem onPress={() => navigation.navigate('Settings')}>

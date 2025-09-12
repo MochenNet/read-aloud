@@ -12,7 +12,6 @@ import HomeScreen from '../screens/HomeStack/HomeScreen';
 import ReaderScreen from '../screens/HomeStack/ReaderScreen';
 import MeScreen from '../screens/MeStack/MeScreen';
 import FavoritesScreen from '../screens/MeStack/FavoritesScreen';
-import HistoryScreen from '../screens/MeStack/HistoryScreen';
 import SettingsScreen from '../screens/MeStack/SettingsScreen';
 import AboutScreen from '../screens/MeStack/AboutScreen';
 
@@ -77,7 +76,6 @@ const MeStackScreen = () => {
     >
       <MeStack.Screen name="Me" component={MeScreen} options={{ headerShown: false }} />
     <MeStack.Screen name="Favorites" component={FavoritesScreen} options={{ headerTitle: '我的收藏' }} />
-    <MeStack.Screen name="History" component={HistoryScreen} options={{ headerTitle: '收听历史' }} />
     <MeStack.Screen name="Settings" component={SettingsScreen} options={{ headerTitle: '设置' }} />
     <MeStack.Screen name="About" component={AboutScreen} options={{ headerTitle: '关于我们' }} />
   </MeStack.Navigator>

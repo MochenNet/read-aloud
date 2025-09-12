@@ -7,14 +7,14 @@ import { useHeaderHeight } from '@react-navigation/elements';
 
 const Container = styled.View`
   flex: 1;
-  background-color: ${({ theme }: { theme: AppTheme }) => (Array.isArray(theme.background) ? theme.background[0] : theme.background)};
   align-items: center;
-  justify-content: center;
+  background-color: ${({ theme }: { theme: AppTheme }) => theme.backgroundColor};
 `;
 
 const AppName = styled.Text`
-  font-size: 32px;
+  font-size: 36px;
   font-weight: bold;
+  font-family: 'TaoBaoMaiCaiTi';
   color: ${({ theme }: { theme: AppTheme }) => theme.text};
   margin-bottom: 10px;
 `;
@@ -26,10 +26,12 @@ const VersionText = styled.Text`
 `;
 
 const DescriptionText = styled.Text`
-  font-size: 14px;
+  font-size: 16px;
   color: ${({ theme }: { theme: AppTheme }) => theme.text};
-  text-align: center;
+  text-align: left;
   padding-horizontal: 40px;
+  margin-bottom: 20px;
+  text-indent: 2em;
 `;
 
 const AboutScreen = () => {
@@ -38,10 +40,19 @@ const AboutScreen = () => {
 
   return (
     <Container style={{ paddingTop: headerHeight }}>
-      <AppName>阅声</AppName>
+      <AppName>阅  声</AppName>
       <VersionText>版本 1.0.0</VersionText>
       <DescriptionText>
-        致力于提供一个纯粹、沉浸的文字与声音体验。
+        本应用源自“钢琴书屋”，我们致力于打造一个心灵的避风港。
+      </DescriptionText>
+      <DescriptionText>
+        在这里，音乐轻柔流淌，文字洗涤灵魂，让您在阅读中沉思，在思考中享受生活，寻回内心的宁静与力量。
+      </DescriptionText>
+      <DescriptionText>
+        本软件完全免费，无广告，无追踪，无隐私。 
+      </DescriptionText>
+      <DescriptionText>
+        致力于提供一个纯粹、沉浸的阅读与声音体验。
       </DescriptionText>
     </Container>
   );
