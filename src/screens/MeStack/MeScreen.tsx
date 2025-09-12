@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   StyleSheet,
@@ -19,6 +19,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { MeStackParamList } from '../../navigation';
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { weatherIconMapping } from '../../data/weatherMapping';
 
 // Styled Components
 const Container = styled(View)`
@@ -122,6 +123,65 @@ const MeScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<StackNavigationProp<MeStackParamList>>();
 
+  const [weatherData, setWeatherData] = useState({
+    temp: '',
+    high: '',
+    low: '',
+    condition: '',
+    tip: '',
+    icon: 'question-circle', // Default icon
+  });
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch('https://node.api.xfabe.com/api/weather/get');
+        const json = await response.json();
+        if (json.code === 200 && json.data.weather) {
+          const weather = json.data.weather[0];
+          const condition = weather.temp;
+          // 确保从 weatherIconMapping 获取的 icon 存在，否则使用默认值
+          let iconMapping = weatherIconMapping[condition];
+
+          // 模糊匹配，如果直接匹配不到，尝试查找包含关键字的映射
+          if (!iconMapping) {
+            for (const key in weatherIconMapping) {
+              if (condition.includes(key) || key.includes(condition)) {
+                iconMapping = weatherIconMapping[key];
+                break;
+              }
+            }
+          }
+          // 如果依然找不到，使用“多云”的数据
+          if (!iconMapping) {
+            iconMapping = weatherIconMapping["多云"] || { name: "多云", tip: "天空云量较多，适合户外活动，但需注意防晒或备伞。随身带本好书，在公园长椅上享受阅读时光。", icon: "cloud" };
+          }
+
+          setWeatherData({
+            temp: `${weather.low} ~ ${weather.high}`,
+            high: weather.high,
+            low: weather.low,
+            condition: condition,
+            tip: iconMapping.tip,
+            icon: iconMapping.icon,
+          });
+          console.log(weatherData);
+          
+        }
+      } catch (error) {
+        console.error('Failed to fetch weather data:', error);
+        Toast.show({
+          type: 'error',
+          text1: '天气信息加载失败',
+          text2: '请检查网络或稍后再试',
+        });
+      }
+    };
+
+    fetchWeather();
+  }, []);
+
+
   return (
     <Container>
       {!isDarkMode && (
@@ -144,14 +204,14 @@ const MeScreen = () => {
       >
         <Header style={{ paddingLeft: 28 }}>
           <WeatherWidget>
-            <FontAwesome5 name="sun" size={30} color={colors.text} />
+            <FontAwesome5 name={weatherData.icon} size={30} color={colors.text} />
             <WeatherDetails>
-              <WeatherTemp>{'28°C'}</WeatherTemp>
-              <WeatherCondition>{'晴朗'}</WeatherCondition>
+              <WeatherTemp>{weatherData.temp}</WeatherTemp>
+              <WeatherCondition>{weatherData.condition}</WeatherCondition>
             </WeatherDetails>
           </WeatherWidget>
           <WeatherTip>
-            {'天气晴朗，适合出门散步，聆听一首轻快的音乐。'}
+            {weatherData.tip}
           </WeatherTip>
         </Header>
 
