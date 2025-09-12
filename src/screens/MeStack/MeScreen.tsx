@@ -1,29 +1,38 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
-  View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Platform,
+  View,
+  Animated,
+  Pressable,
+  Easing
 } from "react-native";
+import { Linking } from "react-native";
 import styled from "styled-components/native";
+import Toast from 'react-native-toast-message'; // 导入 Toast
+import * as Clipboard from 'expo-clipboard'; // 导入 Clipboard
 import { LinearGradient } from "expo-linear-gradient";
-import { useTheme, themes } from "../../contexts/ThemeContext";
+import { useTheme, AppTheme } from "../../contexts/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { MeStackParamList } from '../../navigation';
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { useUserData } from "../../contexts/UserDataContext";
 
 // Styled Components
-const Container = styled(SafeAreaView)`
+const Container = styled(View)`
   flex: 1;
-  background-color: ${(props) => props.theme.background};
+  background-color: ${({ theme }: { theme: AppTheme }) => (Array.isArray(theme.background) ? theme.background[0] : theme.background)};
 `;
 
 const Header = styled.View`
   padding: 20px;
-  padding-top: ${Platform.OS === "android" ? "40px" : "20px"};
-  background-color: ${(props) => props.theme.background};
+  /* padding-top is handled by SafeAreaView */
 `;
 
 const WeatherWidget = styled.View`
@@ -33,29 +42,29 @@ const WeatherWidget = styled.View`
 `;
 
 const WeatherDetails = styled.View`
-  margin-left: 10px;
+  margin-left: 20px;
 `;
 
 const WeatherTemp = styled.Text`
   font-size: 28px;
   font-weight: bold;
-  color: ${(props) => props.theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
 `;
 
 const WeatherCondition = styled.Text`
   font-size: 16px;
-  color: ${(props) => props.theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
 `;
 
 const WeatherTip = styled.Text`
   font-size: 14px;
-  color: ${(props) => props.theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
   line-height: 20px;
 `;
 
 const MenuList = styled.View`
   margin-top: 20px;
-  background-color: ${(props) => props.theme.cardBackground};
+  background-color: ${({ theme }: { theme: AppTheme }) => theme.cardBackground};
   border-radius: 10px;
   margin-horizontal: 20px;
   overflow: hidden;
@@ -66,26 +75,24 @@ const MenuItem = styled(TouchableOpacity)`
   align-items: center;
   padding: 15px;
   border-bottom-width: 1px;
-  border-bottom-color: ${(props) => props.theme.borderColor};
+  border-bottom-color: ${({ theme }: { theme: AppTheme }) => theme.borderColor};
 `;
 
 const MenuItemText = styled.Text`
   flex: 1;
   font-size: 18px;
-  color: ${(props) => props.theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
   margin-left: 15px;
 `;
 
 const CountText = styled.Text`
   font-size: 16px;
-  color: ${(props) => props.theme.subtleText};
+  color: ${({ theme }: { theme: AppTheme }) => theme.subtleText};
 `;
 
-const FollowUsCard = styled.View`
-  background-color: ${(props) => props.theme.cardBackground};
+const FollowUsCardView = styled(View)`
+  background-color: ${({ theme }: { theme: AppTheme }) => theme.cardBackground};
   border-radius: 10px;
-  margin-horizontal: 20px;
-  margin-top: 20px;
   padding: 20px;
   align-items: center;
 `;
@@ -93,89 +100,135 @@ const FollowUsCard = styled.View`
 const FollowUsMainText = styled.Text`
   font-size: 18px;
   font-weight: bold;
-  color: ${(props: { theme: { text: string } }) => props.theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
   margin-top: 10px;
 `;
 
 const FollowUsId = styled.Text`
   font-size: 16px;
-  color: ${(props: { theme: { subtleText: string } }) => props.theme.subtleText};
+  color: ${({ theme }: { theme: AppTheme }) => theme.subtleText};
   margin-top: 5px;
 `;
 
 const FollowUsTip = styled.Text`
   font-size: 12px;
-  color: ${(props: { theme: { subtleText: string } }) => props.theme.subtleText};
+  color: ${({ theme }: { theme: AppTheme }) => theme.subtleText};
   margin-top: 5px;
 `;
 
+const AbsoluteFill = styled(LinearGradient)`
+  ${StyleSheet.absoluteFill}
+`;
+
 const MeScreen = () => {
-  const { theme } = useTheme();
-  const currentTheme = themes[theme] || themes.light;
+  const { isDarkMode, colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation<StackNavigationProp<MeStackParamList>>();
+  const { weatherData } = useUserData();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const onPressIn = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 0.95,
+      duration: 150,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressOut = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 200,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
+
 
   return (
-    <Container style={{ backgroundColor: currentTheme.background }}>
-      {theme === "light" && (
+    <Container>
+      {!isDarkMode && (
         <>
-          <LinearGradient
+          <AbsoluteFill
             colors={["rgba(158, 237, 249, 0.7)", "transparent"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0.8, y: 0.8 }}
-            style={StyleSheet.absoluteFill}
           />
-          <LinearGradient
+          <AbsoluteFill
             colors={["rgba(185, 243, 190, 0.7)", "transparent"]}
             start={{ x: 1, y: 0 }}
             end={{ x: 0.2, y: 0.8 }}
-            style={StyleSheet.absoluteFill}
           />
         </>
       )}
-      <ScrollView style={{ flex: 1 }}>
-        <Header theme={currentTheme}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingTop: insets.top }}
+      >
+        <Header style={{ paddingLeft: 28 }}>
           <WeatherWidget>
-            <FontAwesome5 name="sun" size={30} color={currentTheme.text} />
+            <FontAwesome5 name={weatherData?.icon ?? 'question-circle'} size={30} color={colors.text} />
             <WeatherDetails>
-              <WeatherTemp theme={currentTheme}>28°C</WeatherTemp>
-              <WeatherCondition theme={currentTheme}>晴朗</WeatherCondition>
+              <WeatherTemp>{weatherData?.temp ?? 'N/A'}</WeatherTemp>
+              <WeatherCondition>{weatherData?.condition ?? '未知'}</WeatherCondition>
             </WeatherDetails>
           </WeatherWidget>
-          <WeatherTip theme={currentTheme}>
-            天气晴朗，适合出门散步，聆听一首轻快的音乐。
+          <WeatherTip>
+            {weatherData?.tip ?? '正在加载天气信息...'}
           </WeatherTip>
         </Header>
 
-        <MenuList theme={currentTheme}>
-          <MenuItem theme={currentTheme} onPress={() => {}}>
-            <Ionicons name="heart-outline" size={24} color={currentTheme.text} />
-            <MenuItemText theme={currentTheme}>我的收藏</MenuItemText>
-            <CountText theme={currentTheme}>0</CountText>
-            <Ionicons name="chevron-forward" size={20} color={currentTheme.text} />
+        <Pressable
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          onPress={async () => {
+            const idToCopy = '易悦网络'; // 获取要复制的文本
+            await Clipboard.setStringAsync(idToCopy);
+            Toast.show({
+              type: 'success',
+              text1: '已复制到剪贴板',
+              text2: idToCopy,
+            });
+          }}
+          style={{ marginHorizontal: 20 }}
+        >
+          <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+            <FollowUsCardView>
+              <FontAwesome5 name="weixin" size={40} color={colors.wechatColor} />
+              <FollowUsMainText>{'关注我们的公众号'}</FollowUsMainText>
+              <FollowUsId>{'易悦网络'}</FollowUsId>
+              <FollowUsTip>{'点击此处可复制'}</FollowUsTip>
+            </FollowUsCardView>
+          </Animated.View>
+        </Pressable>
+
+        <MenuList>
+          <MenuItem onPress={() => navigation.navigate('Favorites')}>
+            <Ionicons name="heart-outline" size={24} color={colors.text} />
+            <MenuItemText>{'我的收藏'}</MenuItemText>
+            <Ionicons name="chevron-forward" size={20} color={colors.text} />
           </MenuItem>
-          <MenuItem theme={currentTheme} onPress={() => {}}>
-            <Ionicons name="time-outline" size={24} color={currentTheme.text} />
-            <MenuItemText theme={currentTheme}>收听历史</MenuItemText>
-            <CountText theme={currentTheme}>0</CountText>
-            <Ionicons name="chevron-forward" size={20} color={currentTheme.subtleText} />
+          
+          <MenuItem onPress={() => navigation.navigate('Settings')}>
+            <Ionicons name="settings-outline" size={24} color={colors.text} />
+            <MenuItemText>{'应用设置'}</MenuItemText>
+            <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
-          <MenuItem theme={currentTheme} onPress={() => {}}>
-            <Ionicons name="settings-outline" size={24} color={currentTheme.text} />
-            <MenuItemText theme={currentTheme}>设置</MenuItemText>
-            <Ionicons name="chevron-forward" size={20} color={currentTheme.subtleText} />
+          <MenuItem onPress={() => Linking.openURL('https://www.123pan.com/s/csSaTd-6Yxw3.html')}>
+            <Ionicons name="apps-outline" size={24} color={colors.text} />
+            <MenuItemText>{'更多推荐'}</MenuItemText>
+            <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
-          <MenuItem theme={currentTheme} onPress={() => {}} style={{ borderBottomWidth: 0 }}>
-            <Ionicons name="information-circle-outline" size={24} color={currentTheme.text} />
-            <MenuItemText theme={currentTheme}>关于我们</MenuItemText>
-            <Ionicons name="chevron-forward" size={20} color={currentTheme.subtleText} />
+          <MenuItem onPress={() => navigation.navigate('About')} style={{ borderBottomWidth: 0 }}>
+            <Ionicons name="information-circle-outline" size={24} color={colors.text} />
+            <MenuItemText>{'关于我们'}</MenuItemText>
+            <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
+          
         </MenuList>
 
-        <FollowUsCard theme={currentTheme}>
-          <FontAwesome5 name="weixin" size={40} color="#28C445" />
-          <FollowUsMainText theme={currentTheme}>关注我们的公众号</FollowUsMainText>
-          <FollowUsId theme={currentTheme}>易悦网络</FollowUsId>
-          <FollowUsTip theme={currentTheme}>点击任意位置即可复制</FollowUsTip>
-        </FollowUsCard>
+        
       </ScrollView>
     </Container>
   );

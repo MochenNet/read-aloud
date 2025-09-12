@@ -1,14 +1,62 @@
 import React, { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { UserDataProvider } from './src/contexts/UserDataContext';
-import { AudioProvider } from './src/contexts/AudioContext';
 import AppNavigator from './src/navigation';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 // 防止在字体加载完成前自动隐藏启动屏幕
 SplashScreen.preventAutoHideAsync();
+
+const toastConfig = {
+  success: (props: any) => (
+    <BaseToast
+      {...props}
+      style={{ borderLeftColor: 'blue', height: 40, width: 150 }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      text1Style={{
+        fontSize: 15,
+        fontWeight: '400'
+      }}
+      text2Style={{
+        fontSize: 13
+      }}
+    />
+  ),
+
+  info: (props: any) => (
+    <BaseToast
+      {...props}
+      style={{ borderLeftColor: 'green', height: 40, width: 150 }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      text1Style={{
+        fontSize: 15,
+        fontWeight: '400'
+      }}
+      text2Style={{
+        fontSize: 13
+      }}
+    />
+  ),
+
+  error: (props: any) => (
+    <ErrorToast
+      {...props}
+      style={{ borderLeftColor: 'red', height: 40, width: 150 }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      text1Style={{
+        fontSize: 15,
+        fontWeight: '400'
+      }}
+      text2Style={{
+        fontSize: 13
+      }}
+    />
+  )
+};
 
 export default function App() {
   // 加载自定义字体
@@ -31,12 +79,16 @@ export default function App() {
 
   // 渲染主应用
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <UserDataProvider>
-          <AppNavigator />
-        </UserDataProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <UserDataProvider>
+            <StatusBar style="auto" translucent={true} />
+            <AppNavigator />
+          </UserDataProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+      <Toast config={toastConfig} visibilityTime={800} />
+    </>
   );
 }

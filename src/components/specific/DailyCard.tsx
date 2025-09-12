@@ -7,15 +7,22 @@ import {
   TouchableOpacity,
   Platform,
   Animated,
+  Pressable,
+  Easing
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Article } from '../../types/article';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface DailyCardProps {
   article: Article;
   onPlay: () => void;
   onPress: () => void;
   onRandomize: () => void;
+  onShare: () => void;
+  onToggleFavorite: () => void;
+  isFavorite: boolean;
+  isRandomizing?: boolean;
 }
 
 const getImageSource = (imageUrl?: string) => {
@@ -78,12 +85,14 @@ const MarqueeText: React.FC<MarqueeTextProps> = ({ text, style }) => {
   );
 };
 
-const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize }) => {
+const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize, onShare, onToggleFavorite, isFavorite, isRandomizing }) => {
+  const { isDarkMode, colors } = useTheme();
   const [currentArticle, setCurrentArticle] = useState(article);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const imageFadeIn = useRef(new Animated.Value(0)).current;
+  const rotationAnim = useRef(new Animated.Value(0)).current;
 
   const isInitializing = article.id === 'initial-placeholder';
 
@@ -114,9 +123,44 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
     setIsLoading(false);
   };
 
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handleRandomizePress = () => {
+    onRandomize();
+    rotationAnim.setValue(0);
+    Animated.timing(rotationAnim, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressIn = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 0.95,
+      duration: 150,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressOut = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 200,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
-    <View style={{width: '100%'}}>
-      <View style={styles.container}>
+    <Pressable
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+      style={{ width: '100%' }}
+    >
+      <Animated.View style={[styles.container, { transform: [{ scale: scaleAnim }] }]}>
         <ImageBackground
           source={getImageSource(currentArticle.imageUrl)}
           style={styles.imageBackground}
@@ -134,18 +178,28 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
               resizeMode="cover"
             />
           )}
-          <View style={styles.overlay}>
+          <View style={[styles.overlay, { backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.3)' }]}>
             <View style={styles.topContainer}>
               <View style={styles.tagContainer}>
                 <Text style={styles.tagText}>每日推荐</Text>
               </View>
-              <TouchableOpacity style={styles.randomizeButton} onPress={onRandomize}>
-                <Ionicons name="refresh-outline" size={18} color="white" />
-              </TouchableOpacity>
+              <View style={styles.controlsContainer}>
+                <TouchableOpacity style={styles.controlButton} onPress={onShare}>
+                  <Ionicons name="share-social" size={18} color="blue" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.controlButton} onPress={onToggleFavorite}>
+                  <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={22} color={"red" } />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.controlButton} onPress={handleRandomizePress}>
+                  <Animated.View style={{ transform: [{ rotate: rotationAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
+                    <Ionicons name="refresh-outline" size={22} color="green" />
+                  </Animated.View>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.contentContainer}>
-              {isLoading || isInitializing ? (
+              {isLoading || isInitializing || isRandomizing ? (
                 <Text style={styles.title}>加载中...</Text>
               ) : (
                 <>
@@ -156,9 +210,9 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
               )}
             </View>
 
-            {!(isLoading || isInitializing) && (
-              <TouchableOpacity 
-                style={styles.playButton} 
+            {!(isLoading || isInitializing || isRandomizing) && (
+              <TouchableOpacity
+                style={styles.playButton}
                 onPress={() => {
                   onPlay();
                   onPress();
@@ -169,8 +223,8 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
             )}
           </View>
         </ImageBackground>
-      </View>
-    </View>
+      </Animated.View>
+    </Pressable>
   );
 };
 
@@ -199,8 +253,9 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    paddingHorizontal: 20,
+    // paddingHorizontal: 15,
+    paddingLeft: 15,
+    paddingRight: 10,
     paddingVertical: 20,
     justifyContent: 'space-between',
   },
@@ -217,13 +272,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  randomizeButton: {
+  controlsContainer: {
+    flexDirection: 'row',
+  },
+  controlButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 30,
+    height: 30,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 10,
   },
   tagText: {
     color: 'white',
@@ -237,7 +296,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 29,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'left', // Changed to left for marquee effect
@@ -256,7 +315,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 25,
     paddingVertical: 12,
     alignSelf: 'center',
