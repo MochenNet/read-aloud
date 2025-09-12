@@ -34,9 +34,7 @@ export default function App() {
     <SafeAreaProvider>
       <ThemeProvider>
         <UserDataProvider>
-          <AudioProvider>
-            <AppNavigator />
-          </AudioProvider>
+          <AppNavigator />
         </UserDataProvider>
       </ThemeProvider>
     </SafeAreaProvider>

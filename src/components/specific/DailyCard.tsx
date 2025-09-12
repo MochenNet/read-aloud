@@ -122,12 +122,14 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
           style={styles.imageBackground}
           resizeMode="cover"
           imageStyle={{ borderRadius: 20 }}
+          onLoadEnd={() => console.log('ImageBackground loaded successfully')}
+          onError={(error) => console.log('ImageBackground failed to load:', error.nativeEvent.error)}
         >
           {nextArticle && (
             <Animated.Image
               source={getImageSource(nextArticle.imageUrl)}
               onLoad={onNextImageLoad}
-              onError={onNextImageError} // 新增错误处理
+              onError={onNextImageError}
               style={[styles.imageOverlay, { opacity: imageFadeIn, borderRadius: 20 }]}
               resizeMode="cover"
             />
@@ -235,7 +237,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'left', // Changed to left for marquee effect
@@ -247,7 +249,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   author: {
-    fontSize: 16,
+    fontSize: 22,
     color: 'white',
   },
   playButton: {
@@ -262,7 +264,7 @@ const styles = StyleSheet.create({
   },
   playButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   errorText: { color: 'red', textAlign: 'center', marginTop: 10 },

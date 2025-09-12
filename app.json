@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "rn-read-aloud",
+    "name": "阅声",
     "slug": "rn-read-aloud",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": false,
     "splash": {
@@ -13,22 +13,57 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.rnreadaloud",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
-      "permissions": ["INTERNET"]
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png"
+      },
+      "package": "com.anonymous.rnreadaloud",
+      "permissions": [
+        "INTERNET",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE",
+        "CAMERA",
+        "RECORD_AUDIO",
+        "WAKE_LOCK"
+      ],
+      "usesCleartextTraffic": true
     },
     "adaptiveIcon": {
       "foregroundImage": "./assets/adaptive-icon.png",
       "backgroundColor": "#ffffff"
     },
     "edgeToEdgeEnabled": true,
-    "package": "com.anonymous.rnreadaloud"
+    "package": "com.mochen123.rnreadaloud",
+    "extra": {
+      "eas": {
+        "projectId": "1fd11a51-a528-4631-ad73-e7b4c193b09a"
+      }
+    },
+    "plugins": ["expo-build-properties"]
   },
   "web": {
     "favicon": "./assets/favicon.png"
   },
-  "plugins": [],
+  "plugins": [
+    [
+      "expo-build-properties",
+      {
+        "android": {
+          "usesCleartextTraffic": true
+        }
+      }
+    ]
+  ],
   "extra": {
     "eas": {
       "projectId": "1fd11a51-a528-4631-ad73-e7b4c193b09a"

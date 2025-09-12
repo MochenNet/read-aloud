@@ -106,9 +106,6 @@ const HomeScreen = () => {
       if (dailyArticle.id === 'initial-placeholder') {
         loadDailyData();
       }
-      return () => {
-        stop();
-      }
     }, [dailyArticle, loadDailyData])
   );
 
@@ -150,6 +147,8 @@ const HomeScreen = () => {
     }
   };
 
+  const [isInitialMusicLoaded, setIsInitialMusicLoaded] = useState(false);
+  
   useEffect(() => {
     const loadInitialMusic = async () => {
       try {
@@ -164,17 +163,16 @@ const HomeScreen = () => {
         }
       } catch (error) {
         console.error('Failed to fetch initial music:', error);
-        // 回退到本地音乐列表
         const randomIndex = Math.floor(Math.random() * musicTracks.length);
         setCurrentTrack(musicTracks[randomIndex]);
       }
     };
   
-    // 只有当 currentTrack 为空时才加载初始音乐，确保只加载一次
-    if (!currentTrack) {
+    if (!isInitialMusicLoaded && !currentTrack) {
       loadInitialMusic();
+      setIsInitialMusicLoaded(true);
     }
-  }, [currentTrack, setCurrentTrack]); // 添加 setCurrentTrack 到依赖数组
+  }, [isInitialMusicLoaded, currentTrack, setCurrentTrack]);
 
   const renderContent = () => (
     <MainContent>

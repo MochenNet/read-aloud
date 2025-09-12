@@ -6,6 +6,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet } from 'react-native';
 
+import { AudioProvider } from '../contexts/AudioContext';
+import NavigationAwareAudio from '../components/functional/NavigationAwareAudio';
 import HomeScreen from '../screens/HomeStack/HomeScreen';
 import ReaderScreen from '../screens/HomeStack/ReaderScreen';
 import MeScreen from '../screens/MeStack/MeScreen';
@@ -125,6 +127,9 @@ const AppNavigator = () => {
 
 export default () => (
   <NavigationContainer>
-    <AppNavigator />
+    <AudioProvider>
+      <AppNavigator />
+      <NavigationAwareAudio />
+    </AudioProvider>
   </NavigationContainer>
 );
