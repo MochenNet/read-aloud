@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Modal, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, AppTheme } from '../../contexts/ThemeContext';
 import DailyCard from '../../components/specific/DailyCard';
@@ -28,7 +28,7 @@ const MainContent = styled.View`
   flex: 1;
 `;
 
-const Header = styled.View`
+const Header = styled(TouchableOpacity)`
   paddingVertical: 10;
   paddingHorizontal: 20;
   flex-direction: row;
@@ -84,6 +84,17 @@ const HomeScreen = () => {
   const { play, stop, currentTrack, setCurrentTrack } = useAudio();
   const [dailyArticle, setDailyArticle] = useState<Article>(initialArticle);
   const insets = useSafeAreaInsets();
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+
+  useEffect(() => {
+    if (showModal) {
+      const timer = setTimeout(() => {
+        setShowModal(false);
+      }, 2000); // 1秒后自动关闭
+      return () => clearTimeout(timer);
+    }
+  }, [showModal]);
 
   const loadDailyData = useCallback(async (retryCount = 0) => {
     try {
@@ -175,9 +186,28 @@ const HomeScreen = () => {
     }
   }, [isInitialMusicLoaded, currentTrack, setCurrentTrack]);
 
+  const handleHeaderPress = async () => {
+    try {
+      const response = await fetch('https://api.mu-jie.cc/stray-birds?type=json');
+      const result = await response.json();
+      console.log('Hitokoto:', result);
+      
+      if (result.cn) {
+        setModalContent(result.cn);
+        setShowModal(true);
+      } else {
+        setModalContent('获取一言失败');
+        setShowModal(true);
+      }
+    } catch (error) {
+      setModalContent('网络请求失败');
+      setShowModal(true);
+    }
+  };
+
   const renderContent = () => (
     <MainContent style={{ paddingTop: insets.top }}>
-      <Header>
+      <Header onPress={handleHeaderPress}>
         <AppName>阅·声</AppName>
         <DateDisplay>
           <Day>{day}</Day>
@@ -215,8 +245,60 @@ const HomeScreen = () => {
         </>
       )}
       {renderContent()}
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showModal}
+        onRequestClose={() => setShowModal(false)}
+      >
+        <TouchableOpacity
+          style={modalStyles.centeredView}
+          activeOpacity={1}
+          onPress={() => setShowModal(false)} // 点击任何地方都能关闭
+        >
+          <View style={modalStyles.modalView}>
+            <Text style={modalStyles.modalText}>{modalContent}</Text>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </ThemedContainer>
   );
 };
+
+const modalStyles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'flex-end', // 底部对齐
+    alignItems: 'center',
+    backgroundColor: 'transparent', // 透明背景，不遮罩整个屏幕
+    paddingBottom: 50, // 从底部向上偏移
+  },
+  modalView: {
+    marginHorizontal: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 深色半透明背景
+    borderRadius: 10, // 圆角为20
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: 'transparent', // 去掉阴影
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+    minWidth: 200,
+    maxWidth: '80%',
+  },
+  modalText: {
+    textAlign: 'center',
+    fontSize: 14,
+    color: '#fff', // 白色字体
+    lineHeight: 20,
+  },
+});
 
 export default HomeScreen;
