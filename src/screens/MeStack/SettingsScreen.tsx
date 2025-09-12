@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const Container = styled.ScrollView`
   flex: 1;
-  background-color: ${({ theme }: { theme: AppTheme }) => (Array.isArray(theme.background) ? theme.background[0] : theme.background)};
+  background-color: ${({ theme }: { theme: AppTheme }) => theme.backgroundColor};
 `;
 
 const Section = styled.View`
@@ -70,7 +70,7 @@ const SettingsScreen = () => {
   const { setScheme, scheme } = useTheme();
 
   return (
-    <Container contentContainerStyle={{ paddingTop: headerHeight, paddingBottom: insets.bottom }}>
+    <Container contentContainerStyle={{ paddingTop: headerHeight - 30, paddingBottom: insets.bottom }}>
       <Section>
         <SectionTitle >外观</SectionTitle>
         <MenuList>

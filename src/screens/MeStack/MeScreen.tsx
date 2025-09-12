@@ -176,11 +176,7 @@ const MeScreen = () => {
             <MenuItemText>{'我的收藏'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.text} />
           </MenuItem>
-          <MenuItem onPress={() => Linking.openURL('https://www.123pan.com/s/csSaTd-6Yxw3.html')}>
-            <Ionicons name="apps-outline" size={24} color={colors.text} />
-            <MenuItemText>{'更多应用'}</MenuItemText>
-            <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
-          </MenuItem>
+          
           <MenuItem onPress={() => navigation.navigate('Settings')}>
             <Ionicons name="settings-outline" size={24} color={colors.text} />
             <MenuItemText>{'设置'}</MenuItemText>
@@ -189,6 +185,11 @@ const MeScreen = () => {
           <MenuItem onPress={() => navigation.navigate('About')} style={{ borderBottomWidth: 0 }}>
             <Ionicons name="information-circle-outline" size={24} color={colors.text} />
             <MenuItemText>{'关于我们'}</MenuItemText>
+            <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
+          </MenuItem>
+          <MenuItem onPress={() => Linking.openURL('https://www.123pan.com/s/csSaTd-6Yxw3.html')}>
+            <Ionicons name="apps-outline" size={24} color={colors.text} />
+            <MenuItemText>{'更多应用'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
         </MenuList>

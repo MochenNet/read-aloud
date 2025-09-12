@@ -11,7 +11,7 @@ import { Track } from '../../types/track'; // 导入 Track 类型
 
 const Container = styled.View`
   flex: 1;
-  background-color: ${({ theme }: { theme: AppTheme }) => (Array.isArray(theme.background) ? theme.background[0] : theme.background)};
+  background-color: ${({ theme }: { theme: AppTheme }) => theme.backgroundColor};
 `;
 
 const EmptyContainer = styled.View`
@@ -91,7 +91,7 @@ const FavoritesScreen = () => {
   }
 
   return (
-    <Container style={{ paddingTop: headerHeight }}>
+    <Container style={{ paddingTop: headerHeight - 10 }}>
       <FlatList
         data={favoriteTracks}
         keyExtractor={(item) => item.id}
