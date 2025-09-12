@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Article } from '../../types/article';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface DailyCardProps {
   article: Article;
@@ -79,6 +80,7 @@ const MarqueeText: React.FC<MarqueeTextProps> = ({ text, style }) => {
 };
 
 const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize }) => {
+  const { isDarkMode, colors } = useTheme();
   const [currentArticle, setCurrentArticle] = useState(article);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -134,7 +136,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
               resizeMode="cover"
             />
           )}
-          <View style={styles.overlay}>
+          <View style={[styles.overlay, { backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.3)' }]}>
             <View style={styles.topContainer}>
               <View style={styles.tagContainer}>
                 <Text style={styles.tagText}>每日推荐</Text>
@@ -199,7 +201,6 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     paddingHorizontal: 20,
     paddingVertical: 20,
     justifyContent: 'space-between',
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 29,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'left', // Changed to left for marquee effect

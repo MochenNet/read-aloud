@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, LayoutChangeEvent, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
+import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAudio } from '../../contexts/AudioContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -47,6 +49,7 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
   const { currentTrack, isPlaying, play, pause } = useAudio();
   const { colors } = useTheme();
 
+  const [isFavorite, setIsFavorite] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const [textWidth, setTextWidth] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -111,6 +114,48 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
   }, [containerWidth, textWidth, currentTrack]);
 
 
+  // 新增：检查收藏状态
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (currentTrack) {
+        try {
+          const favoritesJson = await AsyncStorage.getItem('favoriteTracks');
+          const favorites = favoritesJson ? JSON.parse(favoritesJson) : [];
+          const isCurrentlyFavorite = favorites.some((track: any) => track.id === currentTrack.id);
+          setIsFavorite(isCurrentlyFavorite);
+        } catch (error) {
+          console.error('Failed to load favorites', error);
+        }
+      }
+    };
+    checkFavoriteStatus();
+  }, [currentTrack]); // 依赖 currentTrack 变化
+
+  // 新增：切换收藏状态
+  const toggleFavorite = async () => {
+    if (!currentTrack) return;
+
+    try {
+      const favoritesJson = await AsyncStorage.getItem('favoriteTracks');
+      let favorites = favoritesJson ? JSON.parse(favoritesJson) : [];
+
+      if (isFavorite) {
+        // 从收藏中移除
+        favorites = favorites.filter((track: any) => track.id !== currentTrack.id);
+        Toast.show({ type: 'info', text1: '音乐已取消收藏' });
+      } else {
+        // 添加到收藏
+        favorites.push(currentTrack);
+        Toast.show({ type: 'success', text1: '音乐收藏成功' });
+      }
+
+      await AsyncStorage.setItem('favoriteTracks', JSON.stringify(favorites));
+      setIsFavorite(!isFavorite); // 更新UI状态
+    } catch (error) {
+      console.error('Failed to toggle favorite', error);
+    }
+  };
+
   const handlePlayPause = () => {
     if (isPlaying) {
       pause();
@@ -148,11 +193,17 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
       </TrackInfo>
       <Controls>
         <ControlButton onPress={handlePlayPause}>
-          <Ionicons name={isPlaying ? 'pause' : 'play'} size={24} color={colors.text} />
+          <Ionicons name={isPlaying ? 'pause' : 'play'} size={24} color={'blue'} />
         </ControlButton>
         <ControlButton onPress={onRandomize}>
-          <Ionicons name="refresh-outline" size={24} color={colors.text} />
+          <Ionicons name="refresh-outline" size={24} color={'green'} />
         </ControlButton>
+        {/* 新增收藏按钮 */}
+        {currentTrack && ( // 只有当前有音乐时才显示收藏按钮
+          <ControlButton onPress={toggleFavorite}>
+            <Ionicons name={isFavorite ? 'heart' : 'heart-outline'} size={24} color={'red'} />
+          </ControlButton>
+        )}
       </Controls>
     </Container>
   );

@@ -3,8 +3,9 @@ import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
-import { useTheme } from '../../contexts/ThemeContext';
+import { View, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme, AppTheme } from '../../contexts/ThemeContext';
 import DailyCard from '../../components/specific/DailyCard';
 import { useAudio } from '../../contexts/AudioContext';
 import { HomeStackParamList } from '../../navigation';
@@ -20,10 +21,10 @@ type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'Home'>;
 // Styled Components
 const ThemedContainer = styled(View)`
   flex: 1;
-  background-color: ${({ theme }) => (Array.isArray(theme.background) ? theme.background[0] : theme.background)};
+  background-color: ${({ theme }: { theme: AppTheme }) => (Array.isArray(theme.background) ? theme.background[0] : theme.background)};
 `;
 
-const MainContent = styled(SafeAreaView)`
+const MainContent = styled.View`
   flex: 1;
 `;
 
@@ -37,7 +38,7 @@ const Header = styled.View`
 
 const AppName = styled.Text`
   font-size: 36px;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
   font-family: 'TaoBaoMaiCaiTi';
 `;
 
@@ -49,7 +50,7 @@ const DateDisplay = styled.View`
 const Day = styled.Text`
   font-size: 30px;
   font-weight: 500;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
 `;
 
 const Month = styled.Text`
@@ -57,7 +58,7 @@ const Month = styled.Text`
   font-weight: 300;
   margin-left: 5px;
   margin-bottom: 5px;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
 `;
 
 const CardContainer = styled.View`
@@ -82,6 +83,7 @@ const HomeScreen = () => {
   const { isDarkMode, colors } = useTheme();
   const { play, stop, currentTrack, setCurrentTrack } = useAudio();
   const [dailyArticle, setDailyArticle] = useState<Article>(initialArticle);
+  const insets = useSafeAreaInsets();
 
   const loadDailyData = useCallback(async (retryCount = 0) => {
     try {
@@ -174,7 +176,7 @@ const HomeScreen = () => {
   }, [isInitialMusicLoaded, currentTrack, setCurrentTrack]);
 
   const renderContent = () => (
-    <MainContent>
+    <MainContent style={{ paddingTop: insets.top }}>
       <Header>
         <AppName>阅·声</AppName>
         <DateDisplay>

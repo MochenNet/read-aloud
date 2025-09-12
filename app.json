@@ -35,9 +35,7 @@
         "CAMERA",
         "RECORD_AUDIO",
         "WAKE_LOCK"
-      ],
-      "usesCleartextTraffic": true,
-      "networkSecurityConfig": "@/res/xml/network_security_config.xml"
+      ]
     },
     "adaptiveIcon": {
       "foregroundImage": "./assets/adaptive-icon.png",
@@ -49,8 +47,7 @@
       "eas": {
         "projectId": "1fd11a51-a528-4631-ad73-e7b4c193b09a"
       }
-    },
-    "plugins": ["expo-build-properties"]
+    }
   },
   "web": {
     "favicon": "./assets/favicon.png"
@@ -60,14 +57,10 @@
       "expo-build-properties",
       {
         "android": {
-          "usesCleartextTraffic": true
+          "usesCleartextTraffic": true,
+          "networkSecurityConfig": "@/res/xml/network_security_config.xml"
         }
       }
     ]
-  ],
-  "extra": {
-    "eas": {
-      "projectId": "1fd11a51-a528-4631-ad73-e7b4c193b09a"
-    }
-  }
+  ]
 }

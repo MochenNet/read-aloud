@@ -1,23 +1,26 @@
 import React from "react";
 import {
-  View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Platform,
+  View,
 } from "react-native";
 import styled from "styled-components/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useTheme, AppTheme } from "../../contexts/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { MeStackParamList } from '../../navigation';
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 
 // Styled Components
-const Container = styled(SafeAreaView)`
+const Container = styled(View)`
   flex: 1;
-  background-color: ${({ theme }) => (Array.isArray(theme.background) ? theme.background[0] : theme.background)};
+  background-color: ${({ theme }: { theme: AppTheme }) => (Array.isArray(theme.background) ? theme.background[0] : theme.background)};
 `;
 
 const Header = styled.View`
@@ -38,23 +41,23 @@ const WeatherDetails = styled.View`
 const WeatherTemp = styled.Text`
   font-size: 28px;
   font-weight: bold;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
 `;
 
 const WeatherCondition = styled.Text`
   font-size: 16px;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
 `;
 
 const WeatherTip = styled.Text`
   font-size: 14px;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
   line-height: 20px;
 `;
 
 const MenuList = styled.View`
   margin-top: 20px;
-  background-color: ${({ theme }) => theme.cardBackground};
+  background-color: ${({ theme }: { theme: AppTheme }) => theme.cardBackground};
   border-radius: 10px;
   margin-horizontal: 20px;
   overflow: hidden;
@@ -65,23 +68,23 @@ const MenuItem = styled(TouchableOpacity)`
   align-items: center;
   padding: 15px;
   border-bottom-width: 1px;
-  border-bottom-color: ${({ theme }) => theme.borderColor};
+  border-bottom-color: ${({ theme }: { theme: AppTheme }) => theme.borderColor};
 `;
 
 const MenuItemText = styled.Text`
   flex: 1;
   font-size: 18px;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
   margin-left: 15px;
 `;
 
 const CountText = styled.Text`
   font-size: 16px;
-  color: ${({ theme }) => theme.subtleText};
+  color: ${({ theme }: { theme: AppTheme }) => theme.subtleText};
 `;
 
 const FollowUsCard = styled.View`
-  background-color: ${({ theme }) => theme.cardBackground};
+  background-color: ${({ theme }: { theme: AppTheme }) => theme.cardBackground};
   border-radius: 10px;
   margin-horizontal: 20px;
   margin-top: 20px;
@@ -92,19 +95,19 @@ const FollowUsCard = styled.View`
 const FollowUsMainText = styled.Text`
   font-size: 18px;
   font-weight: bold;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }: { theme: AppTheme }) => theme.text};
   margin-top: 10px;
 `;
 
 const FollowUsId = styled.Text`
   font-size: 16px;
-  color: ${({ theme }) => theme.subtleText};
+  color: ${({ theme }: { theme: AppTheme }) => theme.subtleText};
   margin-top: 5px;
 `;
 
 const FollowUsTip = styled.Text`
   font-size: 12px;
-  color: ${({ theme }) => theme.subtleText};
+  color: ${({ theme }: { theme: AppTheme }) => theme.subtleText};
   margin-top: 5px;
 `;
 
@@ -114,6 +117,8 @@ const AbsoluteFill = styled(LinearGradient)`
 
 const MeScreen = () => {
   const { isDarkMode, colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation<StackNavigationProp<MeStackParamList>>();
 
   return (
     <Container>
@@ -131,7 +136,10 @@ const MeScreen = () => {
           />
         </>
       )}
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingTop: insets.top }}
+      >
         <Header>
           <WeatherWidget>
             <FontAwesome5 name="sun" size={30} color={colors.text} />
@@ -146,24 +154,24 @@ const MeScreen = () => {
         </Header>
 
         <MenuList>
-          <MenuItem onPress={() => {}}>
+          <MenuItem onPress={() => navigation.navigate('Favorites')}>
             <Ionicons name="heart-outline" size={24} color={colors.text} />
             <MenuItemText>我的收藏</MenuItemText>
             <CountText>0</CountText>
             <Ionicons name="chevron-forward" size={20} color={colors.text} />
           </MenuItem>
-          <MenuItem onPress={() => {}}>
+          <MenuItem onPress={() => navigation.navigate('History')}>
             <Ionicons name="time-outline" size={24} color={colors.text} />
             <MenuItemText>收听历史</MenuItemText>
             <CountText>0</CountText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
-          <MenuItem onPress={() => {}}>
+          <MenuItem onPress={() => navigation.navigate('Settings')}>
             <Ionicons name="settings-outline" size={24} color={colors.text} />
             <MenuItemText>设置</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
-          <MenuItem onPress={() => {}} style={{ borderBottomWidth: 0 }}>
+          <MenuItem onPress={() => navigation.navigate('About')} style={{ borderBottomWidth: 0 }}>
             <Ionicons name="information-circle-outline" size={24} color={colors.text} />
             <MenuItemText>关于我们</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />

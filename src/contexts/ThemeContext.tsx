@@ -31,50 +31,52 @@ export type AppTheme = typeof themes.light;
 
 interface ThemeContextData {
   isDarkMode: boolean;
-  toggleTheme: () => void;
+  setScheme: (scheme: 'light' | 'dark' | 'system') => void;
+  scheme: 'light' | 'dark' | 'system';
   colors: AppTheme;
 }
 
 const ThemeContext = createContext<ThemeContextData>({
   isDarkMode: false,
-  toggleTheme: () => {},
+  setScheme: () => {},
+  scheme: 'system',
   colors: themes.light,
 });
 
 // Create the provider component
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const systemScheme = useColorScheme();
-  const [theme, setTheme] = useState<'light' | 'dark'>(systemScheme || 'light');
+  const [scheme, setSchemeState] = useState<'light' | 'dark' | 'system'>('system');
 
   useEffect(() => {
-    const loadTheme = async () => {
+    const loadScheme = async () => {
       try {
-        const savedTheme = await AsyncStorage.getItem('theme');
-        if (savedTheme) {
-          setTheme(savedTheme as 'light' | 'dark');
+        const savedScheme = await AsyncStorage.getItem('colorScheme');
+        if (savedScheme) {
+          setSchemeState(savedScheme as 'light' | 'dark' | 'system');
         }
       } catch (error) {
-        console.error('Failed to load theme', error);
+        console.error('Failed to load scheme', error);
       }
     };
-    loadTheme();
+    loadScheme();
   }, []);
 
-  const toggleTheme = async () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
+  const setScheme = async (newScheme: 'light' | 'dark' | 'system') => {
+    setSchemeState(newScheme);
     try {
-      await AsyncStorage.setItem('theme', newTheme);
+      await AsyncStorage.setItem('colorScheme', newScheme);
     } catch (error) {
-      console.error('Failed to save theme', error);
+      console.error('Failed to save scheme', error);
     }
   };
 
+  const theme = scheme === 'system' ? (systemScheme || 'light') : scheme;
   const currentTheme = themes[theme];
   const isDarkMode = theme === 'dark';
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme, colors: currentTheme }}>
+    <ThemeContext.Provider value={{ isDarkMode, setScheme, scheme, colors: currentTheme }}>
       <StyledThemeProvider theme={currentTheme}>
         {children}
       </StyledThemeProvider>
