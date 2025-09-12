@@ -31,7 +31,6 @@ const DescriptionText = styled.Text`
   text-align: left;
   padding-horizontal: 40px;
   margin-bottom: 20px;
-  text-indent: 2em;
 `;
 
 const AboutScreen = () => {
@@ -43,16 +42,16 @@ const AboutScreen = () => {
       <AppName>阅  声</AppName>
       <VersionText>版本 1.0.0</VersionText>
       <DescriptionText>
-        本应用源自“钢琴书屋”，我们致力于打造一个心灵的避风港。
+        {"\u3000\u3000"}本应用源自“钢琴书屋”，我们致力于打造一个心灵的避风港。
       </DescriptionText>
       <DescriptionText>
-        在这里，音乐轻柔流淌，文字洗涤灵魂，让您在阅读中沉思，在思考中享受生活，寻回内心的宁静与力量。
+        {"\u3000\u3000"}在这里，音乐轻柔流淌，文字洗涤灵魂，让您在阅读中沉思，在思考中享受生活，寻回内心的宁静与力量。
       </DescriptionText>
       <DescriptionText>
-        本软件完全免费，无广告，无追踪，无隐私。 
+        {"\u3000\u3000"}本软件完全免费，无广告，无追踪，无隐私。
       </DescriptionText>
       <DescriptionText>
-        致力于提供一个纯粹、沉浸的阅读与声音体验。
+        {"\u3000\u3000"}致力于提供一个纯粹、沉浸的阅读与声音体验。
       </DescriptionText>
     </Container>
   );

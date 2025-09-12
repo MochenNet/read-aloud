@@ -14,6 +14,8 @@ export const themes = {
     borderColor: '#EEEEEE',
     cardBackground: 'rgba(255, 255, 255, 0.7)',
     wechatColor: '#28C445',
+    primaryColor: '#007bff', // Added primary color for light theme
+    buttonText: '#FFFFFF', // Added button text color for light theme
   },
   dark: {
     backgroundColor: '#121212',
@@ -24,6 +26,8 @@ export const themes = {
     borderColor: '#333333',
     cardBackground: 'rgba(50, 50, 50, 0.8)',
     wechatColor: '#28C445',
+    primaryColor: '#007bff', // Added primary color for dark theme
+    buttonText: '#FFFFFF', // Added button text color for dark theme
   },
 };
 

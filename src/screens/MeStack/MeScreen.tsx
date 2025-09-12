@@ -38,7 +38,7 @@ const WeatherWidget = styled.View`
 `;
 
 const WeatherDetails = styled.View`
-  margin-left: 10px;
+  margin-left: 20px;
 `;
 
 const WeatherTemp = styled.Text`
@@ -179,7 +179,12 @@ const MeScreen = () => {
           
           <MenuItem onPress={() => navigation.navigate('Settings')}>
             <Ionicons name="settings-outline" size={24} color={colors.text} />
-            <MenuItemText>{'设置'}</MenuItemText>
+            <MenuItemText>{'应用设置'}</MenuItemText>
+            <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
+          </MenuItem>
+          <MenuItem onPress={() => Linking.openURL('https://www.123pan.com/s/csSaTd-6Yxw3.html')}>
+            <Ionicons name="apps-outline" size={24} color={colors.text} />
+            <MenuItemText>{'更多推荐'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
           <MenuItem onPress={() => navigation.navigate('About')} style={{ borderBottomWidth: 0 }}>
@@ -187,11 +192,7 @@ const MeScreen = () => {
             <MenuItemText>{'关于我们'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
-          <MenuItem onPress={() => Linking.openURL('https://www.123pan.com/s/csSaTd-6Yxw3.html')}>
-            <Ionicons name="apps-outline" size={24} color={colors.text} />
-            <MenuItemText>{'更多应用'}</MenuItemText>
-            <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
-          </MenuItem>
+          
         </MenuList>
 
         
