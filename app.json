@@ -36,7 +36,8 @@
         "RECORD_AUDIO",
         "WAKE_LOCK"
       ],
-      "usesCleartextTraffic": true
+      "usesCleartextTraffic": true,
+      "networkSecurityConfig": "@/res/xml/network_security_config.xml"
     },
     "adaptiveIcon": {
       "foregroundImage": "./assets/adaptive-icon.png",
