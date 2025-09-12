@@ -1,8 +1,47 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import styled from 'styled-components/native';
 import { useAudio } from '../../contexts/AudioContext';
 import { useTheme } from '../../contexts/ThemeContext';
+
+// Styled Components
+const Container = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  border-radius: 20px;
+  margin-vertical: 20px;
+  width: 100%;
+  background-color: ${({ theme }: { theme: any }) => theme.cardBackground};
+  shadow-color: #000;
+  shadow-offset: 0px 10px;
+  shadow-opacity: 0.05;
+  shadow-radius: 5px;
+  elevation: 0;
+`;
+
+const TrackInfo = styled.View`
+  flex: 1;
+  margin-right: 15px;
+`;
+
+const TrackTitle = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }: { theme: any }) => theme.text};
+`;
+
+const Controls = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
+const ControlButton = styled(TouchableOpacity)`
+  margin-left: 15px;
+  background-color: transparent;
+`;
 
 interface RandomMusicPlayerProps {
   onRandomize: () => void;
@@ -10,7 +49,7 @@ interface RandomMusicPlayerProps {
 
 const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) => {
   const { currentTrack, isPlaying, play, pause } = useAudio();
-  const { currentTheme } = useTheme();
+  const { colors } = useTheme();
 
   const handlePlayPause = () => {
     if (isPlaying) {
@@ -25,56 +64,22 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
   };
 
   return (
-    <View style={[styles.container, {     backgroundColor: 'rgba(255, 255, 255, 0.33)', }]}>
-      <View style={styles.trackInfo}>
-        <Text style={[styles.trackTitle, { color: currentTheme.text }]} numberOfLines={1}>
+    <Container>
+      <TrackInfo>
+        <TrackTitle numberOfLines={1}>
           {currentTrack ? currentTrack.title : '点击播放音乐'}
-        </Text>
-      </View>
-      <View style={styles.controls}>
-        <TouchableOpacity activeOpacity={1} underlayColor="transparent" onPress={handlePlayPause} style={styles.controlButton}>
-          <Ionicons name={isPlaying ? 'pause' : 'play'} size={24} color={currentTheme.text} />
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={1} underlayColor="transparent" onPress={onRandomize} style={styles.controlButton}>
-          <Ionicons name="refresh-outline" size={24} color={currentTheme.text} />
-        </TouchableOpacity>
-      </View>
-    </View>
+        </TrackTitle>
+      </TrackInfo>
+      <Controls>
+        <ControlButton onPress={handlePlayPause}>
+          <Ionicons name={isPlaying ? 'pause' : 'play'} size={24} color={colors.text} />
+        </ControlButton>
+        <ControlButton onPress={onRandomize}>
+          <Ionicons name="refresh-outline" size={24} color={colors.text} />
+        </ControlButton>
+      </Controls>
+    </Container>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 25,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    marginVertical: 20,
-    width: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: Platform.OS === 'android' ? 0 : 5,
-  },
-  trackInfo: {
-    flex: 1,
-    marginRight: 15,
-  },
-  trackTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  controlButton: {
-    marginLeft: 15,
-    backgroundColor: 'transparent',
-  },
-});
 
 export default RandomMusicPlayer;

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { UserDataProvider } from './src/contexts/UserDataContext';
-import { AudioProvider } from './src/contexts/AudioContext';
 import AppNavigator from './src/navigation';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -34,6 +34,7 @@ export default function App() {
     <SafeAreaProvider>
       <ThemeProvider>
         <UserDataProvider>
+          <StatusBar style="auto" translucent={true} />
           <AppNavigator />
         </UserDataProvider>
       </ThemeProvider>

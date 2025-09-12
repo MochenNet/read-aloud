@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { View, StyleSheet, SafeAreaView, Platform, Text, Animated } from 'react-native';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import DailyCard from '../../components/specific/DailyCard';
 import { useAudio } from '../../contexts/AudioContext';
@@ -20,12 +20,11 @@ type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'Home'>;
 // Styled Components
 const ThemedContainer = styled(View)`
   flex: 1;
-  background-color: ${(props: { theme: { background: string } }) => props.theme.background};
+  background-color: ${({ theme }) => (Array.isArray(theme.background) ? theme.background[0] : theme.background)};
 `;
 
 const MainContent = styled(SafeAreaView)`
   flex: 1;
-  padding-top: ${Platform.OS === 'android' ? '25' : '0'};
 `;
 
 const Header = styled.View`
@@ -37,8 +36,8 @@ const Header = styled.View`
 `;
 
 const AppName = styled.Text`
-  font-size: 36;
-  color: ${(props: { theme: { text: string } }) => props.theme.text};
+  font-size: 36px;
+  color: ${({ theme }) => theme.text};
   font-family: 'TaoBaoMaiCaiTi';
 `;
 
@@ -48,24 +47,24 @@ const DateDisplay = styled.View`
 `;
 
 const Day = styled.Text`
-  font-size: 30;
+  font-size: 30px;
   font-weight: 500;
-  color: ${(props: { theme: { text: string } }) => props.theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
 const Month = styled.Text`
-  font-size: 16;
+  font-size: 16px;
   font-weight: 300;
-  margin-left: 5;
-  margin-bottom: 5;
-  color: ${(props: { theme: { text: string } }) => props.theme.text};
+  margin-left: 5px;
+  margin-bottom: 5px;
+  color: ${({ theme }) => theme.text};
 `;
 
 const CardContainer = styled.View`
   flex: 1;
   justify-content: flex-start;
   align-items: center;
-  paddingHorizontal: 20;
+  paddingHorizontal: 20px;
 `;
 
 // Create a default article for the initial render
@@ -80,7 +79,7 @@ const initialArticle: Article = {
 
 const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const { theme, currentTheme } = useTheme();
+  const { isDarkMode, colors } = useTheme();
   const { play, stop, currentTrack, setCurrentTrack } = useAudio();
   const [dailyArticle, setDailyArticle] = useState<Article>(initialArticle);
 
@@ -92,13 +91,13 @@ const HomeScreen = () => {
         setDailyArticle({ ...article, imageUrl: imageUrl || undefined });
     } catch (error) {
         if (retryCount < 2) {
-            loadDailyData(retryCount + 1); // 重试最多2次
+            loadDailyData(retryCount + 1); // Retry up to 2 times
         } else {
             console.error('Failed to load daily data after retries:', error);
-            setDailyArticle({ ...articles[0], imageUrl: undefined }); // 回退到默认文章
+            setDailyArticle({ ...articles[0], imageUrl: undefined }); // Fallback to a default article
         }
     }
-}, []);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -141,7 +140,7 @@ const HomeScreen = () => {
       }
     } catch (error) {
       console.error('Failed to fetch random music:', error);
-      // 回退到本地音乐列表
+      // Fallback to local music list
       const randomIndex = Math.floor(Math.random() * musicTracks.length);
       play(musicTracks[randomIndex]);
     }
@@ -177,10 +176,10 @@ const HomeScreen = () => {
   const renderContent = () => (
     <MainContent>
       <Header>
-        <AppName theme={currentTheme}>阅·声</AppName>
+        <AppName>阅·声</AppName>
         <DateDisplay>
-          <Day theme={currentTheme}>{day}</Day>
-          <Month theme={currentTheme}>/ {month}</Month>
+          <Day>{day}</Day>
+          <Month>/ {month}</Month>
         </DateDisplay>
       </Header>
       <CardContainer>
@@ -195,28 +194,24 @@ const HomeScreen = () => {
     </MainContent>
   );
 
-  if (theme === 'light') {
-    return (
-      <View style={{ flex: 1, backgroundColor: 'white' }}>
-        <LinearGradient
-          colors={['rgba(183, 245, 255, 1)', 'transparent']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0.8, y: 1.2 }}
-          style={StyleSheet.absoluteFill}
-        />
-        <LinearGradient
-          colors={['rgba(208, 255, 212, 0.7)', 'transparent']}
-          start={{ x: 1, y: 0 }}
-          end={{ x: 0.2, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-        {renderContent()}
-      </View>
-    );
-  }
-
   return (
-    <ThemedContainer theme={currentTheme}>
+    <ThemedContainer>
+      {!isDarkMode && (
+        <>
+          <LinearGradient
+            colors={['rgba(183, 245, 255, 1)', 'transparent']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0.8, y: 1.2 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <LinearGradient
+            colors={['rgba(208, 255, 212, 0.7)', 'transparent']}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0.2, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+        </>
+      )}
       {renderContent()}
     </ThemedContainer>
   );

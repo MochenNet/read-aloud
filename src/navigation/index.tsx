@@ -29,31 +29,21 @@ const MeStack = createStackNavigator<MeStackParamList>();
 const Tab = createBottomTabNavigator();
 
 const HomeStackScreen = () => (
-  <HomeStack.Navigator
-    screenOptions={{
-      headerStyle: {
-        backgroundColor: themes.light.background, // 默认背景色
-      },
-      headerTintColor: themes.light.text, // 默认文字颜色
-      headerTitleStyle: {
-        fontWeight: 'bold',
-      },
-    }}
-  >
-    <HomeStack.Screen 
-      name="Home" 
-      component={HomeScreen} 
+  <HomeStack.Navigator>
+    <HomeStack.Screen
+      name="Home"
+      component={HomeScreen}
       options={{ headerShown: false }} // 在主页隐藏导航栏
     />
-    <HomeStack.Screen 
-      name="Reader" 
-      component={ReaderScreen} 
+    <HomeStack.Screen
+      name="Reader"
+      component={ReaderScreen}
       options={{
         headerTransparent: true,
         headerTitle: '',
         headerBackground: () => (
           <LinearGradient
-            colors={['rgba(255, 255, 255, 0.9)', 'transparent']}
+            colors={['rgba(255, 255, 255, 0.3)', 'transparent']}
             style={{ flex: 1 }}
           />
         ),
@@ -72,12 +62,9 @@ const MeStackScreen = () => (
 );
 
 const AppNavigator = () => {
-  const { theme } = useTheme();
-  const currentTheme = themes[theme] || themes.light;
-
-    const gradientColors = theme === 'light' 
-    ? ['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.7)'] 
-    : ['rgba(50, 50, 50, 0.15)','rgba(50, 50, 50, 0.7)'];
+  const { colors, isDarkMode } = useTheme();
+  const theme = isDarkMode ? 'dark' : 'light';
+  const currentTheme = themes[theme];
 
   return (
     <Tab.Navigator
@@ -92,27 +79,25 @@ const AppNavigator = () => {
           return <Icon name={iconName as string} size={20} color={color} />;
         },
         headerShown: false,
-        tabBarActiveTintColor: currentTheme.text,
+        tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: 'gray',
-        tabBarStyle: ((route) => {
-          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
-          if (routeName === 'Reader') {
-            return { display: 'none' };
-          }
-          return {
-            position: 'absolute',
-            backgroundColor: 'transparent',
-            borderTopWidth: 0,
-            elevation: 0,
-            borderTopColor: 'transparent',
-          };
-        })(route),
-        tabBarBackground: () => (
-          <LinearGradient
-            colors={gradientColors}
-            style={StyleSheet.absoluteFill}
-          />
-        ),
+        tabBarStyle: {
+          position: 'absolute',
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
+          elevation: 0,
+        },
+        tabBarBackground: () => {
+          const lightColors = ['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.7)'] as const;
+          const darkColors = ['rgba(50, 50, 50, 0.2)', 'rgba(50, 50, 50, 0.7)'] as const;
+          const gradientColors = isDarkMode ? darkColors : lightColors;
+          return (
+            <LinearGradient
+              colors={gradientColors}
+              style={StyleSheet.absoluteFill}
+            />
+          );
+        },
         tabBarLabelStyle: {
           fontFamily: 'TaoBaoMaiCaiTi',
           fontSize: 10,
