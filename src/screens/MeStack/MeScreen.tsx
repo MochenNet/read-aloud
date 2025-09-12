@@ -8,6 +8,8 @@ import {
   View,
 } from "react-native";
 import styled from "styled-components/native";
+import Toast from 'react-native-toast-message'; // 导入 Toast
+import * as Clipboard from 'expo-clipboard'; // 导入 Clipboard
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme, AppTheme } from "../../contexts/ThemeContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -83,11 +85,10 @@ const CountText = styled.Text`
   color: ${({ theme }: { theme: AppTheme }) => theme.subtleText};
 `;
 
-const FollowUsCard = styled.View`
+const FollowUsCard = styled(TouchableOpacity)`
   background-color: ${({ theme }: { theme: AppTheme }) => theme.cardBackground};
   border-radius: 10px;
   margin-horizontal: 20px;
-  margin-top: 20px;
   padding: 20px;
   align-items: center;
 `;
@@ -140,50 +141,58 @@ const MeScreen = () => {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingTop: insets.top }}
       >
-        <Header>
+        <Header style={{ paddingLeft: 28 }}>
           <WeatherWidget>
             <FontAwesome5 name="sun" size={30} color={colors.text} />
             <WeatherDetails>
-              <WeatherTemp>28°C</WeatherTemp>
-              <WeatherCondition>晴朗</WeatherCondition>
+              <WeatherTemp>{'28°C'}</WeatherTemp>
+              <WeatherCondition>{'晴朗'}</WeatherCondition>
             </WeatherDetails>
           </WeatherWidget>
           <WeatherTip>
-            天气晴朗，适合出门散步，聆听一首轻快的音乐。
+            {'天气晴朗，适合出门散步，聆听一首轻快的音乐。'}
           </WeatherTip>
         </Header>
+
+        <FollowUsCard onPress={async () => {
+          const idToCopy = '易悦网络'; // 获取要复制的文本
+          await Clipboard.setStringAsync(idToCopy);
+          Toast.show({
+            type: 'success',
+            text1: '已复制到剪贴板',
+            text2: idToCopy,
+          });
+        }}>
+          <FontAwesome5 name="weixin" size={40} color={colors.wechatColor} />
+          <FollowUsMainText>{'关注我们的公众号'}</FollowUsMainText>
+          <FollowUsId>{'易悦网络'}</FollowUsId>
+          <FollowUsTip>{'点击此处可复制'}</FollowUsTip>
+        </FollowUsCard>
 
         <MenuList>
           <MenuItem onPress={() => navigation.navigate('Favorites')}>
             <Ionicons name="heart-outline" size={24} color={colors.text} />
-            <MenuItemText>我的收藏</MenuItemText>
-            <CountText>0</CountText>
+            <MenuItemText>{'我的收藏'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.text} />
           </MenuItem>
-          <MenuItem onPress={() => navigation.navigate('History')}>
-            <Ionicons name="time-outline" size={24} color={colors.text} />
-            <MenuItemText>收听历史</MenuItemText>
-            <CountText>0</CountText>
+          <MenuItem onPress={() => navigation.navigate('Settings')}> {/* 修改导航目标 */}
+            <Ionicons name="apps-outline" size={24} color={colors.text} /> {/* 更换图标 */}
+            <MenuItemText>{'更多应用'}</MenuItemText> {/* 修改文本 */}
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
           <MenuItem onPress={() => navigation.navigate('Settings')}>
             <Ionicons name="settings-outline" size={24} color={colors.text} />
-            <MenuItemText>设置</MenuItemText>
+            <MenuItemText>{'设置'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
           <MenuItem onPress={() => navigation.navigate('About')} style={{ borderBottomWidth: 0 }}>
             <Ionicons name="information-circle-outline" size={24} color={colors.text} />
-            <MenuItemText>关于我们</MenuItemText>
+            <MenuItemText>{'关于我们'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
         </MenuList>
 
-        <FollowUsCard>
-          <FontAwesome5 name="weixin" size={40} color={colors.wechatColor} />
-          <FollowUsMainText>关注我们的公众号</FollowUsMainText>
-          <FollowUsId>易悦网络</FollowUsId>
-          <FollowUsTip>点击任意位置即可复制</FollowUsTip>
-        </FollowUsCard>
+        
       </ScrollView>
     </Container>
   );

@@ -13,8 +13,7 @@ const Container = styled.View`
   justify-content: center;
 `;
 
-const EmptyIcon = styled(Ionicons)`
-  color: ${({ theme }: { theme: AppTheme }) => theme.subtleText};
+const EmptyIcon = styled.View` // 改为 View
   margin-bottom: 20px;
 `;
 
@@ -26,10 +25,11 @@ const EmptyText = styled.Text`
 const HistoryScreen = () => {
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
+  const { colors } = useTheme(); // 解构 colors
 
   return (
     <Container style={{ paddingTop: headerHeight }}>
-      <EmptyIcon name="time-outline" size={80} />
+      <Ionicons name="time-outline" size={80} color={colors.subtleText} /> {/* 直接使用 Ionicons */}
       <EmptyText>还没有收听历史</EmptyText>
     </Container>
   );

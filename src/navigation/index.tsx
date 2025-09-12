@@ -71,6 +71,8 @@ const MeStackScreen = () => {
         headerTransparent: true,
         headerTitle: '',
         headerTintColor: isDarkMode ? 'white' : 'black', // 根据深色模式设置颜色
+        headerLeftContainerStyle: { paddingLeft: 0 }, // 减小返回按钮的左边距
+        headerTitleStyle: { marginLeft: 0 }, // 减小标题的左边距
       }}
     >
       <MeStack.Screen name="Me" component={MeScreen} options={{ headerShown: false }} />

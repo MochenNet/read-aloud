@@ -16,6 +16,7 @@ const Container = styled.View`
   border-radius: 20px;
   margin-vertical: 20px;
   width: 100%;
+  height: 60px;
   background-color: ${({ theme }: { theme: any }) => theme.cardBackground};
   shadow-color: #000;
   shadow-offset: 0px 10px;
