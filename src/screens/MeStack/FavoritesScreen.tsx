@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native'; // 导入 useNavigatio
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Track } from '../../types/track'; // 导入 Track 类型
 import { Article } from '../../types/article'; // 导入 Article 类型
+import PagerView from 'react-native-pager-view'; // 导入 PagerView
 
 type FavoriteItem = (Track | Article) & { type: 'music' | 'article' };
 
@@ -47,7 +48,7 @@ const TabButton = styled(TouchableOpacity)<{ isActive: boolean }>`
   padding: 8px 35px;
   border-radius: 20px;
   background-color: ${({ theme, isActive }: { theme: AppTheme; isActive: boolean }) =>
-    isActive ? '#0070e888' : 'transparent'};
+    isActive ? '#007bffb3' : theme.card};
 `;
 
 const TabButtonText = styled.Text<{ isActive: boolean }>`
@@ -67,12 +68,6 @@ const ItemTitle = styled.Text`
   color: ${({ theme }: { theme: AppTheme }) => theme.text};
 `;
 
-const ItemAuthor = styled.Text`
-  font-size: 14px;
-  color: ${({ theme }: { theme: AppTheme }) => theme.subtleText};
-  margin-top: 2px;
-`;
-
 const FavoritesScreen = () => {
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
@@ -82,6 +77,7 @@ const FavoritesScreen = () => {
   const [favoriteItems, setFavoriteItems] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const [pagerIndex, setPagerIndex] = useState(0); // Add pager index state
 
   const clearAllFavorites = useCallback(async () => {
     Alert.alert(
@@ -189,7 +185,8 @@ const FavoritesScreen = () => {
     return unsubscribe;
   }, [navigation, colors, clearAllFavorites]);
 
-  const filteredItems = favoriteItems.filter(item => item.type === activeTab);
+  const filteredMusicItems = favoriteItems.filter(item => item.type === 'music');
+  const filteredArticleItems = favoriteItems.filter(item => item.type === 'article');
 
   const renderItem = ({ item }: { item: FavoriteItem }) => (
     <FavoriteItemContainer onLongPress={() => handleLongPress(item)}>
@@ -197,38 +194,64 @@ const FavoritesScreen = () => {
     </FavoriteItemContainer>
   );
 
-  if (loading) {
-    return (
-      <EmptyContainer style={{ paddingTop: headerHeight }}>
-        <EmptyText>加载中...</EmptyText>
-      </EmptyContainer>
-    );
-  }
-
   return (
     <Container style={{ paddingTop: headerHeight - 10 }}>
       <TabContainer>
-        <TabButton isActive={activeTab === 'music'} onPress={() => setActiveTab('music')}>
+        <TabButton isActive={activeTab === 'music'} onPress={() => { setActiveTab('music'); setPagerIndex(0); }}>
           <TabButtonText isActive={activeTab === 'music'}>音乐</TabButtonText>
         </TabButton>
-        <TabButton isActive={activeTab === 'articles'} onPress={() => setActiveTab('articles')}>
+        <TabButton isActive={activeTab === 'articles'} onPress={() => { setActiveTab('articles'); setPagerIndex(1); }}>
           <TabButtonText isActive={activeTab === 'articles'}>文章</TabButtonText>
         </TabButton>
       </TabContainer>
 
-      {filteredItems.length === 0 ? (
-        <EmptyContainer>
-          <Ionicons name="heart-dislike-outline" size={80} color={colors.subtleText} />
-          <EmptyText>{activeTab === 'music' ? '暂无收藏音乐' : '暂无收藏文章'}</EmptyText>
-        </EmptyContainer>
-      ) : (
-        <FlatList
-          data={filteredItems}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={{ paddingHorizontal: 12 }}
-        />
-      )}
+      <PagerView
+        style={{ flex: 1 }}
+        initialPage={pagerIndex}
+        onPageSelected={e => {
+          setPagerIndex(e.nativeEvent.position);
+          setActiveTab(e.nativeEvent.position === 0 ? 'music' : 'articles');
+        }}
+      >
+        <View key="0" style={{ flex: 1 }}>
+          {loading ? (
+            <EmptyContainer>
+              <EmptyText>加载中...</EmptyText>
+            </EmptyContainer>
+          ) : filteredMusicItems.length === 0 ? (
+            <EmptyContainer>
+              <Ionicons name="heart-dislike-outline" size={80} color={colors.subtleText} />
+              <EmptyText>暂无收藏音乐</EmptyText>
+            </EmptyContainer>
+          ) : (
+            <FlatList
+              data={filteredMusicItems}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              contentContainerStyle={{ paddingHorizontal: 12 }}
+            />
+          )}
+        </View>
+        <View key="1" style={{ flex: 1 }}>
+          {loading ? (
+            <EmptyContainer>
+              <EmptyText>加载中...</EmptyText>
+            </EmptyContainer>
+          ) : filteredArticleItems.length === 0 ? (
+            <EmptyContainer>
+              <Ionicons name="heart-dislike-outline" size={80} color={colors.subtleText} />
+              <EmptyText>暂无收藏文章</EmptyText>
+            </EmptyContainer>
+          ) : (
+            <FlatList
+              data={filteredArticleItems}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              contentContainerStyle={{ paddingHorizontal: 12 }}
+            />
+          )}
+        </View>
+      </PagerView>
     </Container>
   );
 };
