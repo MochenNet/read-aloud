@@ -18,6 +18,12 @@
 *   **样式**: Styled Components
 *   **音频**: expo-av
 
+## 打包
+
+```
+eas build -p android --profile preview
+```
+
 ## 如何运行
 
 1.  克隆仓库:
