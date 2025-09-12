@@ -1,5 +1,5 @@
 export const fetchRandomImageUrl = async (): Promise<string | null> => {
-  const apiUrl = 'https://api.52vmy.cn/api/img/tu/view';
+  const apiUrl = 'https://api.dwo.cc/api/fj_pe';
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
 
@@ -11,11 +11,15 @@ export const fetchRandomImageUrl = async (): Promise<string | null> => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    if (data && data.code === 200 ) {
-      return data.url;
-    }
-    console.error('无效的响应格式或状态码不是200:', data);
+    const imageBlob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(imageBlob);
+    });
     return null;
   } catch (error) {
     clearTimeout(timeoutId);
@@ -55,7 +59,7 @@ export const fetchRandomMusic = async (): Promise<{ title: string; url: string }
     try {
         const data = await apiRequest<{ code: number; title: string; url: string }>(apiUrl);
         if (data && data.code === 200 && data.title && data.url) {
-            return { title: data.title, url: data.url };
+            return { title: data.title, url: data.url.replace('http://', 'https://') };
         }
         console.error('无效的响应格式或状态码不是200:', data);
         return null;

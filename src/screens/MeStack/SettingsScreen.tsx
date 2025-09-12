@@ -12,8 +12,8 @@ const Container = styled.ScrollView`
 `;
 
 const Section = styled.View`
-  margin-top: 30px;
-  margin-horizontal: 20px;
+  margin-top: 30;
+  margin-horizontal: 20;
 `;
 
 const SectionTitle = styled.Text`
@@ -34,8 +34,8 @@ const MenuItem = styled(TouchableOpacity)`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 15px;
-  border-bottom-width: 1px;
+  padding: 15;
+  border-bottom-width: 1;
   border-bottom-color: ${({ theme }: { theme: AppTheme }) => theme.borderColor};
 `;
 
@@ -47,14 +47,14 @@ const MenuItemText = styled.Text`
 const SegmentedControl = styled.View`
   flex-direction: row;
   background-color: ${({ theme }: { theme: AppTheme }) => theme.borderColor};
-  border-radius: 8px;
-  padding: 2px;
+  border-radius: 8;
+  padding: 2;
 `;
 
 const SegmentedOption = styled(TouchableOpacity)<{ isActive: boolean }>`
   flex: 1;
-  padding: 8px;
-  border-radius: 7px;
+  padding: 8;
+  border-radius: 7;
   background-color: ${({ theme, isActive }: { theme: AppTheme, isActive: boolean }) => (isActive ? theme.cardBackground : 'transparent')};
 `;
 
