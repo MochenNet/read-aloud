@@ -1,4 +1,4 @@
-# 乐读 (YueDu)
+# 乐读 (rn-read-aloud)
 
 **在喧嚣的世界里，找到片刻的宁静。**
 
@@ -21,7 +21,13 @@
 *   **样式**: Styled Components
 *   **音频**: expo-av
 
-## 🚀 如何运行
+## 打包
+
+```
+eas build -p android --profile preview
+```
+
+## 如何运行
 
 1.  **克隆仓库**:
     ```bash
