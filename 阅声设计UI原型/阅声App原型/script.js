@@ -1,16 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- GLOBAL HELPERS & DATA ---
     const contentData = [
-        { id: 1, image: 'https://placehold.co/600x400/a2d2ff/333333?text=阅声', title: '关于告别', text: '我们一生都在学着如何告别，却总是学不会。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', duration: '4:12' },
-        { id: 2, image: 'https://placehold.co/600x400/ffafcc/333333?text=阅声', title: '夏夜的风', text: '夏夜的风，带来了远方的故事，和槐花的香气。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', duration: '5:25' },
-        { id: 3, image: 'https://placehold.co/600x400/bde0fe/333333?text=阅声', title: '城市的猫', text: '它在墙头踱步，优雅又孤独，看尽了这座城市的日出与日落。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', duration: '3:58' },
-        { id: 4, image: 'https://placehold.co/600x400/cddafd/333333?text=阅声', title: '雪国', text: '穿过县界长长的隧道，便是雪国。夜空下一片白茫茫。——川端康成', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', duration: '4:50' },
-        { id: 5, image: 'https://placehold.co/600x400/f5c2e7/333333?text=阅声', title: '断章', text: '你站在桥上看风景，看风景的人在楼上看你。明月装饰了你的窗子，你装饰了别人的梦。——卞之琳', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', duration: '3:15' },
-        { id: 6, image: 'https://placehold.co/600x400/b2f2bb/333333?text=阅声', title: '人间草木', text: '我们曾如此渴望命运的波澜，到最后才发现：人生最曼妙的风景，竟是内心的淡定与从容。——汪曾祺', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', duration: '5:02' },
-        { id: 7, image: 'https://placehold.co/600x400/f7d1ba/333333?text=阅声', title: '爱在黎明破晓前', text: '我觉得，我就是为遇见你，才来到这个世界的。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', duration: '2:48' },
-        { id: 8, image: 'https://placehold.co/600x400/a6e3e9/333333?text=阅声', title: '海子的诗', text: '你来人间一趟，你要看看太阳，和你的心上人，一起走在街上。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', duration: '4:22' },
-        { id: 9, image: 'https://placehold.co/600x400/e4c1f9/333333?text=阅声', title: '月亮与六便士', text: '我用尽了全力，过着平凡的一生。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3', duration: '3:33' },
-        { id: 10, image: 'https://placehold.co/600x400/d4a5a5/333333?text=阅声', title: '无题', text: '生活是具体的，不是一种巨大的、无法战胜的、绝望的虚空。——加缪', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', duration: '4:01' }
+        { id: 1, image: 'https://placehold.co/600x400/a2d2ff/333333?text=乐读', title: '关于告别', text: '我们一生都在学着如何告别，却总是学不会。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', duration: '4:12' },
+        { id: 2, image: 'https://placehold.co/600x400/ffafcc/333333?text=乐读', title: '夏夜的风', text: '夏夜的风，带来了远方的故事，和槐花的香气。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', duration: '5:25' },
+        { id: 3, image: 'https://placehold.co/600x400/bde0fe/333333?text=乐读', title: '城市的猫', text: '它在墙头踱步，优雅又孤独，看尽了这座城市的日出与日落。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', duration: '3:58' },
+        { id: 4, image: 'https://placehold.co/600x400/cddafd/333333?text=乐读', title: '雪国', text: '穿过县界长长的隧道，便是雪国。夜空下一片白茫茫。——川端康成', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', duration: '4:50' },
+        { id: 5, image: 'https://placehold.co/600x400/f5c2e7/333333?text=乐读', title: '断章', text: '你站在桥上看风景，看风景的人在楼上看你。明月装饰了你的窗子，你装饰了别人的梦。——卞之琳', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', duration: '3:15' },
+        { id: 6, image: 'https://placehold.co/600x400/b2f2bb/333333?text=乐读', title: '人间草木', text: '我们曾如此渴望命运的波澜，到最后才发现：人生最曼妙的风景，竟是内心的淡定与从容。——汪曾祺', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', duration: '5:02' },
+        { id: 7, image: 'https://placehold.co/600x400/f7d1ba/333333?text=乐读', title: '爱在黎明破晓前', text: '我觉得，我就是为遇见你，才来到这个世界的。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', duration: '2:48' },
+        { id: 8, image: 'https://placehold.co/600x400/a6e3e9/333333?text=乐读', title: '海子的诗', text: '你来人间一趟，你要看看太阳，和你的心上人，一起走在街上。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', duration: '4:22' },
+        { id: 9, image: 'https://placehold.co/600x400/e4c1f9/333333?text=乐读', title: '月亮与六便士', text: '我用尽了全力，过着平凡的一生。', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3', duration: '3:33' },
+        { id: 10, image: 'https://placehold.co/600x400/d4a5a5/333333?text=乐读', title: '无题', text: '生活是具体的，不是一种巨大的、无法战胜的、绝望的虚空。——加缪', audio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', duration: '4:01' }
     ];
 
     function formatTime(seconds) {

@@ -43,7 +43,7 @@ const ControlButton = styled(TouchableOpacity)`
 `;
 
 interface RandomMusicPlayerProps {
-  onRandomize: () => void;
+  onRandomize: (callback?: () => void) => void;
 }
 
 const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) => {
@@ -51,12 +51,14 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
   const { colors } = useTheme();
 
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const [textWidth, setTextWidth] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef<ScrollView>(null);
   const textRef = useRef<Text>(null);
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+  const rotationAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (containerWidth > 0 && textWidth > 0 && textWidth > containerWidth) {
@@ -112,7 +114,7 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
       }
       scrollX.removeAllListeners();
     };
-  }, [containerWidth, textWidth, currentTrack]);
+  }, [containerWidth, textWidth, currentTrack, isLoading]);
 
 
   // 新增：检查收藏状态
@@ -146,11 +148,15 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
         Toast.show({ type: 'info', text1: '音乐已取消收藏' });
       } else {
         // 添加到收藏
-        favorites.push(currentTrack);
+        const { id, title } = currentTrack;
+        favorites.push({ id, title });
         Toast.show({ type: 'success', text1: '音乐收藏成功' });
       }
 
-      await AsyncStorage.setItem('favoriteTracks', JSON.stringify(favorites));
+      // 确保只存储必要的字段
+      const sanitizedFavorites = favorites.map((item: { id: string; title: string; }) => ({ id: item.id, title: item.title }));
+      await AsyncStorage.setItem('favoriteTracks', JSON.stringify(sanitizedFavorites));
+      
       setIsFavorite(!isFavorite); // 更新UI状态
     } catch (error) {
       console.error('Failed to toggle favorite', error);
@@ -170,6 +176,21 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
   };
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handleRandomizePress = () => {
+    setIsLoading(true);
+    setIsLoading(true);
+    onRandomize(() => {
+      setIsLoading(false);
+    });
+    rotationAnim.setValue(0);
+    Animated.timing(rotationAnim, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
+  };
 
   const onPressIn = () => {
     Animated.timing(scaleAnim, {
@@ -213,7 +234,7 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
                   color: colors.text,
                 }}
               >
-                {currentTrack ? currentTrack.title : '点击刷新/播放按钮'}
+                {isLoading ? '加载中...' : (currentTrack ? currentTrack.title : '点击刷新/播放按钮')}
               </Animated.Text>
             </ScrollView>
           </TrackInfo>
@@ -227,8 +248,10 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
                 <Ionicons name={isFavorite ? 'heart' : 'heart-outline'} size={24} color={'red'} />
               </ControlButton>
             )}
-            <ControlButton onPress={onRandomize}>
-              <Ionicons name="refresh-outline" size={24} color={'green'} />
+            <ControlButton onPress={handleRandomizePress}>
+              <Animated.View style={{ transform: [{ rotate: rotationAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
+                <Ionicons name="refresh-outline" size={24} color={'green'} />
+              </Animated.View>
             </ControlButton>
 
           </Controls>

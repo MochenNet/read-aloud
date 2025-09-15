@@ -19,6 +19,10 @@ interface DailyCardProps {
   onPlay: () => void;
   onPress: () => void;
   onRandomize: () => void;
+  onShare: () => void;
+  onToggleFavorite: () => void;
+  isFavorite: boolean;
+  isRandomizing?: boolean;
 }
 
 const getImageSource = (imageUrl?: string) => {
@@ -81,13 +85,14 @@ const MarqueeText: React.FC<MarqueeTextProps> = ({ text, style }) => {
   );
 };
 
-const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize }) => {
+const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize, onShare, onToggleFavorite, isFavorite, isRandomizing }) => {
   const { isDarkMode, colors } = useTheme();
   const [currentArticle, setCurrentArticle] = useState(article);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const imageFadeIn = useRef(new Animated.Value(0)).current;
+  const rotationAnim = useRef(new Animated.Value(0)).current;
 
   const isInitializing = article.id === 'initial-placeholder';
 
@@ -119,6 +124,17 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
   };
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handleRandomizePress = () => {
+    onRandomize();
+    rotationAnim.setValue(0);
+    Animated.timing(rotationAnim, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
+  };
 
   const onPressIn = () => {
     Animated.timing(scaleAnim, {
@@ -167,13 +183,23 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
               <View style={styles.tagContainer}>
                 <Text style={styles.tagText}>每日推荐</Text>
               </View>
-              <TouchableOpacity style={styles.randomizeButton} onPress={onRandomize}>
-                <Ionicons name="refresh-outline" size={18} color="white" />
-              </TouchableOpacity>
+              <View style={styles.controlsContainer}>
+                <TouchableOpacity style={styles.controlButton} onPress={onShare}>
+                  <Ionicons name="search-outline" size={22} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.controlButton} onPress={onToggleFavorite}>
+                  <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={22} color={isFavorite ? "red" : "white"} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.controlButton} onPress={handleRandomizePress}>
+                  <Animated.View style={{ transform: [{ rotate: rotationAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
+                    <Ionicons name="refresh-outline" size={22} color="white" />
+                  </Animated.View>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.contentContainer}>
-              {isLoading || isInitializing ? (
+              {isLoading || isInitializing || isRandomizing ? (
                 <Text style={styles.title}>加载中...</Text>
               ) : (
                 <>
@@ -184,7 +210,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
               )}
             </View>
 
-            {!(isLoading || isInitializing) && (
+            {!(isLoading || isInitializing || isRandomizing) && (
               <TouchableOpacity
                 style={styles.playButton}
                 onPress={() => {
@@ -227,7 +253,9 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    paddingHorizontal: 20,
+    // paddingHorizontal: 15,
+    paddingLeft: 15,
+    paddingRight: 10,
     paddingVertical: 20,
     justifyContent: 'space-between',
   },
@@ -244,13 +272,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  randomizeButton: {
+  controlsContainer: {
+    flexDirection: 'row',
+  },
+  controlButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 30,
+    height: 30,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 10,
   },
   tagText: {
     color: 'white',

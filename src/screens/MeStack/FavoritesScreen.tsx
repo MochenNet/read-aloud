@@ -119,7 +119,15 @@ const FavoritesScreen = () => {
       const jsonValue = await AsyncStorage.getItem(key);
       let currentItems: (Track | Article)[] = jsonValue != null ? JSON.parse(jsonValue) : [];
       const updatedItems = currentItems.filter(item => item.id !== itemId);
-      await AsyncStorage.setItem(key, JSON.stringify(updatedItems));
+      // 确保写回的数据也是清理过的
+      const sanitizedItems = updatedItems.map((item: any) => {
+        if (itemType === 'music') {
+          return { id: item.id, title: item.title };
+        }
+        // 对于文章，我们假设它有 author 字段
+        return { id: item.id, title: item.title, author: item.author };
+      });
+      await AsyncStorage.setItem(key, JSON.stringify(sanitizedItems));
 
       setFavoriteItems(prevItems => prevItems.filter(item => !(item.id === itemId && item.type === itemType)));
 

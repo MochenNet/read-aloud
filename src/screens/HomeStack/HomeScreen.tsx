@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { View, StyleSheet, TouchableOpacity, Modal, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Modal, Text, Share } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, AppTheme } from '../../contexts/ThemeContext';
 import DailyCard from '../../components/specific/DailyCard';
@@ -15,6 +15,8 @@ import { fetchRandomImageUrl, fetchRandomMusic } from '../../api';
 import RandomMusicPlayer from '../../components/specific/RandomMusicPlayer';
 import { musicTracks } from '../../data/music';
 import { Track } from '../../types/track';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'Home'>;
 
@@ -86,6 +88,8 @@ const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isRandomizing, setIsRandomizing] = useState(false);
 
   useEffect(() => {
     if (showModal) {
@@ -97,6 +101,7 @@ const HomeScreen = () => {
   }, [showModal]);
 
   const loadDailyData = useCallback(async (retryCount = 0) => {
+    setIsRandomizing(true);
     try {
         const randomIndex = Math.floor(Math.random() * articles.length);
         const article = articles[randomIndex];
@@ -109,6 +114,8 @@ const HomeScreen = () => {
             console.error('Failed to load daily data after retries:', error);
             setDailyArticle({ ...articles[0], imageUrl: undefined }); // Fallback to a default article
         }
+    } finally {
+        setIsRandomizing(false);
     }
   }, []);
 
@@ -120,6 +127,22 @@ const HomeScreen = () => {
       }
     }, [dailyArticle, loadDailyData])
   );
+
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (dailyArticle && dailyArticle.id !== 'initial-placeholder') {
+        try {
+          const favoritesJson = await AsyncStorage.getItem('favoriteArticles');
+          const favorites = favoritesJson ? JSON.parse(favoritesJson) : [];
+          const isCurrentlyFavorite = favorites.some((article: any) => article.id === dailyArticle.id);
+          setIsFavorite(isCurrentlyFavorite);
+        } catch (error) {
+          console.error('Failed to load article favorites', error);
+        }
+      }
+    };
+    checkFavoriteStatus();
+  }, [dailyArticle]);
 
   const date = new Date();
   const day = date.getDate();
@@ -140,7 +163,46 @@ const HomeScreen = () => {
     navigation.navigate('Reader', { articleId: dailyArticle.id });
   };
 
-  const handleRandomizeMusic = async () => {
+  const handleShare = async () => {
+    if (!dailyArticle || dailyArticle.id === 'initial-placeholder') return;
+    try {
+      await Share.share({
+        message: `推荐你阅读一篇文章：《${dailyArticle.title}》 - ${dailyArticle.author}`,
+        url: 'https://read.hfabe.com', // Replace with a real URL if available
+        title: `乐读 - 《${dailyArticle.title}》`
+      });
+    } catch (error) {
+      console.error('Share failed', error);
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!dailyArticle || dailyArticle.id === 'initial-placeholder') return;
+
+    try {
+      const favoritesJson = await AsyncStorage.getItem('favoriteArticles');
+      let favorites = favoritesJson ? JSON.parse(favoritesJson) : [];
+      
+      if (isFavorite) {
+        favorites = favorites.filter((article: any) => article.id !== dailyArticle.id);
+        Toast.show({ type: 'info', text1: '文章已取消收藏' });
+      } else {
+        const { id, title, author } = dailyArticle;
+        favorites.push({ id, title, author });
+        Toast.show({ type: 'success', text1: '文章收藏成功' });
+      }
+
+      // 确保只存储必要的字段，防止 CursorWindow 错误
+      const sanitizedFavorites = favorites.map((item: { id: string; title: string; author: string; }) => ({ id: item.id, title: item.title, author: item.author }));
+      await AsyncStorage.setItem('favoriteArticles', JSON.stringify(sanitizedFavorites));
+      
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error('Failed to toggle article favorite', error);
+    }
+  };
+
+  const handleRandomizeMusic = async (callback?: () => void) => {
     try {
       const musicData = await fetchRandomMusic();
       if (musicData) {
@@ -156,6 +218,10 @@ const HomeScreen = () => {
       // Fallback to local music list
       const randomIndex = Math.floor(Math.random() * musicTracks.length);
       play(musicTracks[randomIndex]);
+    } finally {
+      if (callback) {
+        callback();
+      }
     }
   };
 
@@ -221,6 +287,10 @@ const HomeScreen = () => {
           onPlay={handlePlayArticle}
           onPress={handleCardPress}
           onRandomize={loadDailyData}
+          onShare={handleShare}
+          onToggleFavorite={handleToggleFavorite}
+          isFavorite={isFavorite}
+          isRandomizing={isRandomizing}
         />
       </CardContainer>
     </MainContent>
