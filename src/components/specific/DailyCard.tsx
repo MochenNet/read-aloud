@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Platform,
   Animated,
+  Pressable,
+  Easing
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Article } from '../../types/article';
@@ -116,9 +118,33 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
     setIsLoading(false);
   };
 
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const onPressIn = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 0.95,
+      duration: 150,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressOut = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 200,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
-    <View style={{width: '100%'}}>
-      <View style={styles.container}>
+    <Pressable
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+      style={{ width: '100%' }}
+    >
+      <Animated.View style={[styles.container, { transform: [{ scale: scaleAnim }] }]}>
         <ImageBackground
           source={getImageSource(currentArticle.imageUrl)}
           style={styles.imageBackground}
@@ -159,8 +185,8 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
             </View>
 
             {!(isLoading || isInitializing) && (
-              <TouchableOpacity 
-                style={styles.playButton} 
+              <TouchableOpacity
+                style={styles.playButton}
                 onPress={() => {
                   onPlay();
                   onPress();
@@ -171,8 +197,8 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
             )}
           </View>
         </ImageBackground>
-      </View>
-    </View>
+      </Animated.View>
+    </Pressable>
   );
 };
 

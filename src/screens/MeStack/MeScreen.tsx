@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   Text,
   StyleSheet,
@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   Platform,
   View,
+  Animated,
+  Pressable,
+  Easing
 } from "react-native";
 import { Linking } from "react-native";
 import styled from "styled-components/native";
@@ -87,10 +90,9 @@ const CountText = styled.Text`
   color: ${({ theme }: { theme: AppTheme }) => theme.subtleText};
 `;
 
-const FollowUsCard = styled(TouchableOpacity)`
+const FollowUsCardView = styled(View)`
   background-color: ${({ theme }: { theme: AppTheme }) => theme.cardBackground};
   border-radius: 10px;
-  margin-horizontal: 20px;
   padding: 20px;
   align-items: center;
 `;
@@ -123,6 +125,25 @@ const MeScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<StackNavigationProp<MeStackParamList>>();
   const { weatherData } = useUserData();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const onPressIn = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 0.95,
+      duration: 150,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressOut = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 200,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
 
 
   return (
@@ -158,20 +179,29 @@ const MeScreen = () => {
           </WeatherTip>
         </Header>
 
-        <FollowUsCard onPress={async () => {
-          const idToCopy = '易悦网络'; // 获取要复制的文本
-          await Clipboard.setStringAsync(idToCopy);
-          Toast.show({
-            type: 'success',
-            text1: '已复制到剪贴板',
-            text2: idToCopy,
-          });
-        }}>
-          <FontAwesome5 name="weixin" size={40} color={colors.wechatColor} />
-          <FollowUsMainText>{'关注我们的公众号'}</FollowUsMainText>
-          <FollowUsId>{'易悦网络'}</FollowUsId>
-          <FollowUsTip>{'点击此处可复制'}</FollowUsTip>
-        </FollowUsCard>
+        <Pressable
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          onPress={async () => {
+            const idToCopy = '易悦网络'; // 获取要复制的文本
+            await Clipboard.setStringAsync(idToCopy);
+            Toast.show({
+              type: 'success',
+              text1: '已复制到剪贴板',
+              text2: idToCopy,
+            });
+          }}
+          style={{ marginHorizontal: 20 }}
+        >
+          <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+            <FollowUsCardView>
+              <FontAwesome5 name="weixin" size={40} color={colors.wechatColor} />
+              <FollowUsMainText>{'关注我们的公众号'}</FollowUsMainText>
+              <FollowUsId>{'易悦网络'}</FollowUsId>
+              <FollowUsTip>{'点击此处可复制'}</FollowUsTip>
+            </FollowUsCardView>
+          </Animated.View>
+        </Pressable>
 
         <MenuList>
           <MenuItem onPress={() => navigation.navigate('Favorites')}>

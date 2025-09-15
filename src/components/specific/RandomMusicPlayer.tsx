@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, LayoutChangeEvent, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Animated, Easing, LayoutChangeEvent, ScrollView, Text, TouchableOpacity, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import Toast from 'react-native-toast-message';
@@ -169,45 +169,72 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
     }
   };
 
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const onPressIn = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 0.95,
+      duration: 150,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressOut = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 200,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
-    <Container>
-      <TrackInfo onLayout={(event: LayoutChangeEvent) => setContainerWidth(event.nativeEvent.layout.width)}>
-        <ScrollView
-          ref={scrollViewRef}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          scrollEnabled={false} // Disable manual scrolling
-          contentContainerStyle={{ alignItems: 'center' }}
-        >
-          <Animated.Text
-            ref={textRef}
-            onLayout={(event: LayoutChangeEvent) => setTextWidth(event.nativeEvent.layout.width)}
-            style={{
-              fontSize: 16,
-              fontWeight: '600',
-              color: colors.text,
-            }}
-          >
-            {currentTrack ? currentTrack.title : '点击刷新/播放按钮'}
-          </Animated.Text>
-        </ScrollView>
-      </TrackInfo>
-      <Controls>
-        <ControlButton onPress={handlePlayPause}>
-          <Ionicons name={isPlaying ? 'pause' : 'play'} size={24} color={'blue'} />
-        </ControlButton>
-        {/* 新增收藏按钮 */}
-        {currentTrack && ( // 只有当前有音乐时才显示收藏按钮
-          <ControlButton onPress={toggleFavorite}>
-            <Ionicons name={isFavorite ? 'heart' : 'heart-outline'} size={24} color={'red'} />
-          </ControlButton>
-        )}
-        <ControlButton onPress={onRandomize}>
-          <Ionicons name="refresh-outline" size={24} color={'green'} />
-        </ControlButton>
-        
-      </Controls>
-    </Container>
+    <Pressable
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+    >
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <Container>
+          <TrackInfo onLayout={(event: LayoutChangeEvent) => setContainerWidth(event.nativeEvent.layout.width)}>
+            <ScrollView
+              ref={scrollViewRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              scrollEnabled={false} // Disable manual scrolling
+              contentContainerStyle={{ alignItems: 'center' }}
+            >
+              <Animated.Text
+                ref={textRef}
+                onLayout={(event: LayoutChangeEvent) => setTextWidth(event.nativeEvent.layout.width)}
+                style={{
+                  fontSize: 16,
+                  fontWeight: '600',
+                  color: colors.text,
+                }}
+              >
+                {currentTrack ? currentTrack.title : '点击刷新/播放按钮'}
+              </Animated.Text>
+            </ScrollView>
+          </TrackInfo>
+          <Controls>
+            <ControlButton onPress={handlePlayPause}>
+              <Ionicons name={isPlaying ? 'pause' : 'play'} size={24} color={'blue'} />
+            </ControlButton>
+            {/* 新增收藏按钮 */}
+            {currentTrack && ( // 只有当前有音乐时才显示收藏按钮
+              <ControlButton onPress={toggleFavorite}>
+                <Ionicons name={isFavorite ? 'heart' : 'heart-outline'} size={24} color={'red'} />
+              </ControlButton>
+            )}
+            <ControlButton onPress={onRandomize}>
+              <Ionicons name="refresh-outline" size={24} color={'green'} />
+            </ControlButton>
+
+          </Controls>
+        </Container>
+      </Animated.View>
+    </Pressable>
   );
 };
 
