@@ -1,4 +1,4 @@
-# 阅声 (rn-read-aloud)
+# 乐读 (rn-read-aloud)
 
 这是一个使用 React Native 和 Expo 构建的移动应用，旨在提供一个沉浸式的阅读和聆听体验。
 
