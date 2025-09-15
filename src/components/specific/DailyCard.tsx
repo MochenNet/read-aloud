@@ -185,14 +185,14 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
               </View>
               <View style={styles.controlsContainer}>
                 <TouchableOpacity style={styles.controlButton} onPress={onShare}>
-                  <Ionicons name="search-outline" size={22} color="white" />
+                  <Ionicons name="search-outline" size={19} color="blue" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.controlButton} onPress={onToggleFavorite}>
-                  <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={22} color={isFavorite ? "red" : "white"} />
+                  <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={22} color={"red"} />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.controlButton} onPress={handleRandomizePress}>
                   <Animated.View style={{ transform: [{ rotate: rotationAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
-                    <Ionicons name="refresh-outline" size={22} color="white" />
+                    <Ionicons name="refresh-outline" size={22} color="green" />
                   </Animated.View>
                 </TouchableOpacity>
               </View>

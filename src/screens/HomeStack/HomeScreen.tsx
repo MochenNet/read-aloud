@@ -152,8 +152,8 @@ const HomeScreen = () => {
     if (!dailyArticle || dailyArticle.id === 'initial-placeholder') return;
     try {
       await Share.share({
-        message: `推荐你阅读一篇文章：《${dailyArticle.title}》 - ${dailyArticle.author}`,
-        url: 'https://read.hfabe.com', // Replace with a real URL if available
+        message: `《${dailyArticle.title}》 - ${dailyArticle.author}`,
+        url: 'https://start.yuenet.top', // Replace with a real URL if available
         title: `乐读 - 《${dailyArticle.title}》`
       });
     } catch (error) {

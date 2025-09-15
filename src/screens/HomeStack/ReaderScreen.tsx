@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import styled from "styled-components/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme, AppTheme } from "../../contexts/ThemeContext";
 import { articles } from "../../data/articles";
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { HomeStackParamList } from '../../navigation';
 import { useHeaderHeight } from '@react-navigation/elements';
 
@@ -57,10 +57,24 @@ const Spacer = styled.View`
 
 // --- Component ---
 const ReaderScreen = () => {
-  const { isDarkMode } = useTheme();
+  const { colors, isDarkMode } = useTheme();
+  const navigation = useNavigation();
   const route = useRoute<ReaderScreenRouteProp>();
   const { articleId } = route.params;
   const headerHeight = useHeaderHeight();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTransparent: true,
+      headerStyle: {
+        backgroundColor: 'transparent',
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomWidth: 0,
+      },
+      headerTintColor: 'white', // Set a fixed color for visibility on transparent bg
+    });
+  }, [navigation]);
 
   const article = articles.find(a => a.id === articleId);
 

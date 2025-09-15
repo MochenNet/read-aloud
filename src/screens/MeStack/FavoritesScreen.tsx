@@ -63,7 +63,7 @@ const FavoriteItemContainer = styled(TouchableOpacity)`
 `;
 
 const ItemTitle = styled.Text`
-  font-size: 12px;
+  font-size: 14px;
   color: ${({ theme }: { theme: AppTheme }) => theme.text};
 `;
 
@@ -102,14 +102,20 @@ const FavoritesScreen = () => {
     ]);
   };
 
-  const handleCopy = useCallback(async (item: FavoriteItem) => {
-    await Clipboard.setStringAsync(item.title);
-    Toast.show({
-      type: 'success',
-      text1: '已复制',
-      text2: '标题已复制到剪贴板',
-    });
-  }, []);
+  const handleItemPress = useCallback(async (item: FavoriteItem) => {
+   if (item.type === 'article') {
+     // @ts-ignore
+     navigation.navigate('Reader', { articleId: item.id });
+   } else {
+     // For music, copy the title
+     await Clipboard.setStringAsync(item.title);
+     Toast.show({
+       type: 'success',
+       text1: '已复制',
+       text2: '标题已复制到剪贴板',
+     });
+   }
+ }, [navigation]);
 
   const clearAllFavorites = useCallback(() => {
     Alert.alert(
@@ -150,7 +156,7 @@ const FavoritesScreen = () => {
 
   const renderItem = ({ item }: { item: FavoriteItem }) => (
     <FavoriteItemContainer
-      onPress={() => handleCopy(item)} // Tap to copy
+      onPress={() => handleItemPress(item)} // Tap to navigate or copy
       onLongPress={() => handleRemove(item)} // Long press to remove
     >
       <ItemTitle>{item.title}</ItemTitle>

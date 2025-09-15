@@ -34,6 +34,7 @@ export type MeStackParamList = {
 const HomeStack = createStackNavigator<HomeStackParamList>();
 const MeStack = createStackNavigator<MeStackParamList>();
 const Tab = createBottomTabNavigator();
+const RootStack = createStackNavigator();
 
 const HomeStackScreen = () => (
   <HomeStack.Navigator>
@@ -42,23 +43,7 @@ const HomeStackScreen = () => (
       component={HomeScreen}
       options={{ headerShown: false }} // 在主页隐藏导航栏
     />
-    <HomeStack.Screen
-      name="Reader"
-      component={ReaderScreen}
-      options={{
-        headerTransparent: true,
-        headerTitle: '',
-        headerBackground: () => (
-          <LinearGradient
-            colors={['rgba(255, 255, 255, 0.3)', 'transparent']}
-            style={{ flex: 1 }}
-          />
-        ),
-        headerStyle: {
-          borderBottomWidth: 0, // 确保没有额外的分割线
-        },
-      }}
-    />
+    {/* ReaderScreen is now in RootStack */}
   </HomeStack.Navigator>
 );
 
@@ -82,17 +67,16 @@ const MeStackScreen = () => {
   );
 };
 
-const AppNavigator = () => {
+const TabNavigator = () => {
   const { colors, isDarkMode } = useTheme();
-  const theme = isDarkMode ? 'dark' : 'light';
-  const currentTheme = themes[theme];
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => {
         const routeName = getFocusedRouteNameFromRoute(route);
-        const visibleRoutes = ['Home', 'Me'];
-        const isTabBarVisible = !routeName || visibleRoutes.includes(routeName);
+        // Define routes where the tab bar should be visible
+        const visibleOnRoutes = ['Home', 'Me'];
+        const isTabBarVisible = routeName ? visibleOnRoutes.includes(routeName) : true;
 
         return {
           tabBarIcon: ({ focused, color, size }) => {
@@ -114,21 +98,16 @@ const AppNavigator = () => {
             elevation: 0,
             display: isTabBarVisible ? 'flex' : 'none',
           },
-        tabBarBackground: () => {
-          const lightColors = ['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.7)'] as const;
-          const darkColors = ['rgba(50, 50, 50, 0.2)', 'rgba(50, 50, 50, 0.7)'] as const;
-          const gradientColors = isDarkMode ? darkColors : lightColors;
-          return (
-            <LinearGradient
-              colors={gradientColors}
-              style={StyleSheet.absoluteFill}
-            />
-          );
-        },
-        tabBarLabelStyle: {
-          fontFamily: 'TaoBaoMaiCaiTi',
-          fontSize: 10,
-        },
+          tabBarBackground: () => {
+            const lightColors = ['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.7)'] as const;
+            const darkColors = ['rgba(50, 50, 50, 0.2)', 'rgba(50, 50, 50, 0.7)'] as const;
+            const gradientColors = isDarkMode ? darkColors : lightColors;
+            return <LinearGradient colors={gradientColors} style={StyleSheet.absoluteFill} />;
+          },
+          tabBarLabelStyle: {
+            fontFamily: 'TaoBaoMaiCaiTi',
+            fontSize: 10,
+          },
         };
       }}
     >
@@ -137,6 +116,21 @@ const AppNavigator = () => {
     </Tab.Navigator>
   );
 };
+
+const AppNavigator = () => (
+  <RootStack.Navigator screenOptions={{ headerShown: false }}>
+    <RootStack.Screen name="Main" component={TabNavigator} />
+    <RootStack.Screen
+      name="Reader"
+      component={ReaderScreen}
+      options={{
+        headerShown: true,
+        headerTransparent: true, // Revert to transparent, will be styled in the component
+        headerTitle: '',
+      }}
+    />
+  </RootStack.Navigator>
+);
 
 export default () => (
   <NavigationContainer>
