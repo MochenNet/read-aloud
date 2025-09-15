@@ -220,6 +220,11 @@ const MeScreen = () => {
             <MenuItemText>{'更多推荐'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
+          <MenuItem onPress={() => Linking.openURL('https://start.yuenet.top/')}>
+            <Ionicons name="home-outline" size={24} color={colors.text} />
+            <MenuItemText>{'我的主页'}</MenuItemText>
+            <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
+          </MenuItem>
           <MenuItem onPress={() => navigation.navigate('About')} style={{ borderBottomWidth: 0 }}>
             <Ionicons name="information-circle-outline" size={24} color={colors.text} />
             <MenuItemText>{'关于我们'}</MenuItemText>
