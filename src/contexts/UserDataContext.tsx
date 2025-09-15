@@ -14,17 +14,29 @@ export interface WeatherData {
   icon: string;
 }
 
+// 定义收藏项的类型
+interface FavoriteItem {
+  id: string;
+  title: string;
+}
+
 // 定义用户数据的形状
 interface UserData {
-  favorites: string[]; // 假设我们存储项目的ID
+  favoriteArticles: FavoriteItem[];
+  favoriteMusic: FavoriteItem[];
   history: string[];
   weatherData?: WeatherData;
 }
 
 // 定义Context的形状
 interface UserDataContextData extends UserData {
-  toggleFavorite: (itemId: string) => void;
+  toggleArticleFavorite: (article: { id: string; title: string }) => void;
+  toggleMusicFavorite: (track: { id: string; title: string }) => void;
+  isArticleFavorite: (articleId: string) => boolean;
+  isMusicFavorite: (trackId: string) => boolean;
   addToHistory: (itemId: string) => void;
+  clearFavoriteArticles: () => void;
+  clearFavoriteMusic: () => void;
 }
 
 // 创建Context
@@ -32,7 +44,11 @@ const UserDataContext = createContext<UserDataContextData>({} as UserDataContext
 
 // 创建Provider组件
 export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [userData, setUserData] = useState<UserData>({ favorites: [], history: [] });
+  const [userData, setUserData] = useState<UserData>({
+    favoriteArticles: [],
+    favoriteMusic: [],
+    history: [],
+  });
 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -86,7 +102,11 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       try {
         const savedData = await AsyncStorage.getItem('userData');
         if (savedData) {
-          setUserData(JSON.parse(savedData));
+          const loadedData = JSON.parse(savedData);
+          // 确保收藏字段始终是数组，防止undefined错误
+          loadedData.favoriteArticles = loadedData.favoriteArticles || [];
+          loadedData.favoriteMusic = loadedData.favoriteMusic || [];
+          setUserData(loadedData);
         }
       } catch (error) {
         console.error('从存储加载用户数据失败', error);
@@ -104,14 +124,58 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const toggleFavorite = (itemId: string) => {
-    const { favorites } = userData;
-    const newFavorites = favorites.includes(itemId)
-      ? favorites.filter(id => id !== itemId)
-      : [...favorites, itemId];
-    const newUserData = { ...userData, favorites: newFavorites };
+  const toggleArticleFavorite = (article: { id: string; title: string }) => {
+    const { favoriteArticles } = userData;
+    const isFavorite = favoriteArticles.some(fav => fav.id === article.id);
+    const newFavorites = isFavorite
+      ? favoriteArticles.filter(fav => fav.id !== article.id)
+      : [...favoriteArticles, { id: article.id, title: article.title }];
+    
+    const newUserData = { ...userData, favoriteArticles: newFavorites };
     setUserData(newUserData);
     saveData(newUserData);
+    Toast.show({
+      type: isFavorite ? 'info' : 'success',
+      text1: isFavorite ? '文章已取消收藏' : '文章收藏成功',
+    });
+  };
+
+  const toggleMusicFavorite = (track: { id: string; title: string }) => {
+    const { favoriteMusic } = userData;
+    const isFavorite = favoriteMusic.some(fav => fav.id === track.id);
+    const newFavorites = isFavorite
+      ? favoriteMusic.filter(fav => fav.id !== track.id)
+      : [...favoriteMusic, { id: track.id, title: track.title }];
+
+    const newUserData = { ...userData, favoriteMusic: newFavorites };
+    setUserData(newUserData);
+    saveData(newUserData);
+    Toast.show({
+      type: isFavorite ? 'info' : 'success',
+      text1: isFavorite ? '音乐已取消收藏' : '音乐收藏成功',
+    });
+  };
+
+  const isArticleFavorite = (articleId: string) => {
+    return userData.favoriteArticles.some(fav => fav.id === articleId);
+  };
+
+  const isMusicFavorite = (trackId: string) => {
+    return userData.favoriteMusic.some(fav => fav.id === trackId);
+  };
+
+  const clearFavoriteArticles = () => {
+    const newUserData = { ...userData, favoriteArticles: [] };
+    setUserData(newUserData);
+    saveData(newUserData);
+    Toast.show({ type: 'success', text1: '已清空文章收藏' });
+  };
+
+  const clearFavoriteMusic = () => {
+    const newUserData = { ...userData, favoriteMusic: [] };
+    setUserData(newUserData);
+    saveData(newUserData);
+    Toast.show({ type: 'success', text1: '已清空音乐收藏' });
   };
 
   const addToHistory = (itemId: string) => {
@@ -124,7 +188,18 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <UserDataContext.Provider value={{ ...userData, toggleFavorite, addToHistory }}>
+    <UserDataContext.Provider
+      value={{
+        ...userData,
+        toggleArticleFavorite,
+        toggleMusicFavorite,
+        isArticleFavorite,
+        isMusicFavorite,
+        addToHistory,
+        clearFavoriteArticles,
+        clearFavoriteMusic,
+      }}
+    >
       {children}
     </UserDataContext.Provider>
   );

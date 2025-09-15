@@ -8,12 +8,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { Ionicons } from '@expo/vector-icons'; // 重新导入 Ionicons
 import { useNavigation } from '@react-navigation/native'; // 导入 useNavigation
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Track } from '../../types/track'; // 导入 Track 类型
-import { Article } from '../../types/article'; // 导入 Article 类型
+import { useUserData } from '../../contexts/UserDataContext';
 import PagerView from 'react-native-pager-view'; // 导入 PagerView
 
-type FavoriteItem = (Track | Article) & { type: 'music' | 'article' };
+interface FavoriteItem {
+ id: string;
+ title: string;
+ type: 'music' | 'article';
+}
 
 const Container = styled.View`
   flex: 1;
@@ -69,15 +71,47 @@ const FavoritesScreen = () => {
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const { colors } = useTheme();
+  const {
+    favoriteArticles,
+    favoriteMusic,
+    toggleArticleFavorite,
+    toggleMusicFavorite,
+    clearFavoriteArticles,
+    clearFavoriteMusic,
+  } = useUserData();
 
   const [activeTab, setActiveTab] = useState<'music' | 'articles'>('music');
-  const [favoriteItems, setFavoriteItems] = useState<FavoriteItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   const [pagerIndex, setPagerIndex] = useState(0); // Add pager index state
   const pagerViewRef = useRef<PagerView>(null);
 
-  const clearAllFavorites = useCallback(async () => {
+  const handleRemove = (item: FavoriteItem) => {
+    Alert.alert('删除确认', `确定要删除收藏 "${item.title}" 吗？`, [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '删除',
+        style: 'destructive',
+        onPress: () => {
+          if (item.type === 'article') {
+            toggleArticleFavorite({ id: item.id, title: item.title });
+          } else {
+            toggleMusicFavorite({ id: item.id, title: item.title });
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleCopy = useCallback(async (item: FavoriteItem) => {
+    await Clipboard.setStringAsync(item.title);
+    Toast.show({
+      type: 'success',
+      text1: '已复制',
+      text2: '标题已复制到剪贴板',
+    });
+  }, []);
+
+  const clearAllFavorites = useCallback(() => {
     Alert.alert(
       '清空收藏',
       `您确定要清空所有${activeTab === 'music' ? '音乐' : '文章'}收藏记录吗？此操作不可撤销。`,
@@ -88,98 +122,20 @@ const FavoritesScreen = () => {
         },
         {
           text: '确定',
-          onPress: async () => {
-            try {
-              const key = activeTab === 'music' ? 'favoriteTracks' : 'favoriteArticles';
-              await AsyncStorage.removeItem(key);
-              setFavoriteItems(prevItems => prevItems.filter(item => item.type !== activeTab));
-              Toast.show({
-                type: 'success',
-                text1: '已清空',
-                text2: `所有${activeTab === 'music' ? '音乐' : '文章'}收藏记录已成功清空`,
-              });
-            } catch (e) {
-              console.error(`Failed to clear all ${activeTab} favorite tracks/articles.`, e);
-              Toast.show({
-                type: 'error',
-                text1: '清空失败',
-                text2: `清空${activeTab === 'music' ? '音乐' : '文章'}收藏记录时发生错误`,
-              });
+          onPress: () => {
+            if (activeTab === 'music') {
+              clearFavoriteMusic();
+            } else {
+              clearFavoriteArticles();
             }
           },
         },
       ],
       { cancelable: true }
     );
-  }, [activeTab]);
-
-  const removeFavorite = useCallback(async (itemId: string, itemType: 'music' | 'article') => {
-    try {
-      const key = itemType === 'music' ? 'favoriteTracks' : 'favoriteArticles';
-      const jsonValue = await AsyncStorage.getItem(key);
-      let currentItems: (Track | Article)[] = jsonValue != null ? JSON.parse(jsonValue) : [];
-      const updatedItems = currentItems.filter(item => item.id !== itemId);
-      // 确保写回的数据也是清理过的
-      const sanitizedItems = updatedItems.map((item: any) => {
-        if (itemType === 'music') {
-          return { id: item.id, title: item.title };
-        }
-        // 对于文章，我们假设它有 author 字段
-        return { id: item.id, title: item.title, author: item.author };
-      });
-      await AsyncStorage.setItem(key, JSON.stringify(sanitizedItems));
-
-      setFavoriteItems(prevItems => prevItems.filter(item => !(item.id === itemId && item.type === itemType)));
-
-      Toast.show({
-        type: 'success',
-        text1: '记录已删除',
-        text2: '收藏记录已成功移除',
-      });
-    } catch (e) {
-      console.error('Failed to remove favorite item.', e);
-      Toast.show({
-        type: 'error',
-        text1: '删除失败',
-        text2: '移除收藏记录时发生错误',
-      });
-    }
-  }, []);
-
-  const handleLongPress = useCallback(async (item: FavoriteItem) => {
-    await Clipboard.setStringAsync(item.title);
-    Toast.show({
-      type: 'success',
-      text1: '已复制',
-      text2: '标题已复制到剪贴板',
-    });
-  }, []);
+  }, [activeTab, clearFavoriteMusic, clearFavoriteArticles]);
 
   useEffect(() => {
-    const loadFavorites = async () => {
-      setLoading(true);
-      try {
-        const musicJson = await AsyncStorage.getItem('favoriteTracks');
-        const articleJson = await AsyncStorage.getItem('favoriteArticles');
-
-        const loadedMusic: Track[] = musicJson != null ? JSON.parse(musicJson) : [];
-        const loadedArticles: Article[] = articleJson != null ? JSON.parse(articleJson) : [];
-
-        const combinedFavorites: FavoriteItem[] = [
-          ...loadedMusic.map(track => ({ ...track, type: 'music' as const })),
-          ...loadedArticles.map(article => ({ ...article, type: 'article' as const })),
-        ];
-
-        setFavoriteItems(combinedFavorites.reverse()); // 倒序
-      } catch (e) {
-        console.error('Failed to load favorite items.', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const unsubscribe = navigation.addListener('focus', loadFavorites);
-
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity onPress={clearAllFavorites} style={{ marginRight: 15 }}>
@@ -187,15 +143,16 @@ const FavoritesScreen = () => {
         </TouchableOpacity>
       ),
     });
-
-    return unsubscribe;
   }, [navigation, colors, clearAllFavorites]);
 
-  const filteredMusicItems = favoriteItems.filter(item => item.type === 'music');
-  const filteredArticleItems = favoriteItems.filter(item => item.type === 'article');
+  const musicItems = favoriteMusic.map(item => ({ ...item, type: 'music' as const })).reverse();
+  const articleItems = favoriteArticles.map(item => ({ ...item, type: 'article' as const })).reverse();
 
   const renderItem = ({ item }: { item: FavoriteItem }) => (
-    <FavoriteItemContainer onLongPress={() => handleLongPress(item)}>
+    <FavoriteItemContainer
+      onPress={() => handleCopy(item)} // Tap to copy
+      onLongPress={() => handleRemove(item)} // Long press to remove
+    >
       <ItemTitle>{item.title}</ItemTitle>
     </FavoriteItemContainer>
   );
@@ -221,42 +178,34 @@ const FavoritesScreen = () => {
         }}
       >
         <View key="0" style={{ flex: 1 }}>
-          {loading ? (
-            <EmptyContainer>
-              <EmptyText>加载中...</EmptyText>
-            </EmptyContainer>
-          ) : filteredMusicItems.length === 0 ? (
-            <EmptyContainer>
-              <Ionicons name="heart-dislike-outline" size={80} color={colors.subtleText} />
-              <EmptyText>暂无收藏音乐</EmptyText>
-            </EmptyContainer>
-          ) : (
-            <FlatList
-              data={filteredMusicItems}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              contentContainerStyle={{ paddingHorizontal: 12 }}
-            />
-          )}
-        </View>
-        <View key="1" style={{ flex: 1 }}>
-          {loading ? (
-            <EmptyContainer>
-              <EmptyText>加载中...</EmptyText>
-            </EmptyContainer>
-          ) : filteredArticleItems.length === 0 ? (
-            <EmptyContainer>
-              <Ionicons name="heart-dislike-outline" size={80} color={colors.subtleText} />
-              <EmptyText>暂无收藏文章</EmptyText>
-            </EmptyContainer>
-          ) : (
-            <FlatList
-              data={filteredArticleItems}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              contentContainerStyle={{ paddingHorizontal: 12 }}
-            />
-          )}
+         {musicItems.length === 0 ? (
+           <EmptyContainer>
+             <Ionicons name="heart-dislike-outline" size={80} color={colors.subtleText} />
+             <EmptyText>暂无收藏音乐</EmptyText>
+           </EmptyContainer>
+         ) : (
+           <FlatList
+             data={musicItems}
+             keyExtractor={(item) => item.id}
+             renderItem={renderItem}
+             contentContainerStyle={{ paddingHorizontal: 12 }}
+           />
+         )}
+       </View>
+       <View key="1" style={{ flex: 1 }}>
+         {articleItems.length === 0 ? (
+           <EmptyContainer>
+             <Ionicons name="heart-dislike-outline" size={80} color={colors.subtleText} />
+             <EmptyText>暂无收藏文章</EmptyText>
+           </EmptyContainer>
+         ) : (
+           <FlatList
+             data={articleItems}
+             keyExtractor={(item) => item.id}
+             renderItem={renderItem}
+             contentContainerStyle={{ paddingHorizontal: 12 }}
+           />
+         )}
         </View>
       </PagerView>
     </Container>
