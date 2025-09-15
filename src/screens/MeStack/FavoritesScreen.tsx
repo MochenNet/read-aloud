@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import * as Clipboard from 'expo-clipboard'; // 导入 Clipboard
@@ -45,15 +45,13 @@ const TabContainer = styled.View`
 `;
 
 const TabButton = styled(TouchableOpacity)<{ isActive: boolean }>`
-  padding: 8px 35px;
-  border-radius: 20px;
-  background-color: ${({ theme, isActive }: { theme: AppTheme; isActive: boolean }) =>
-    isActive ? '#007bffb3' : theme.card};
+  
 `;
 
 const TabButtonText = styled.Text<{ isActive: boolean }>`
-  color: ${({ theme, isActive }: { theme: AppTheme; isActive: boolean }) => (isActive ? theme.buttonText : theme.text)};
-  font-weight: bold;
+  font-size: 16px;
+  color: ${({ theme, isActive }: { theme: AppTheme; isActive: boolean }) => (isActive ? theme.primaryColor : theme.text)};
+  font-weight: 600;
 `;
 
 const FavoriteItemContainer = styled(TouchableOpacity)`
@@ -63,8 +61,7 @@ const FavoriteItemContainer = styled(TouchableOpacity)`
 `;
 
 const ItemTitle = styled.Text`
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 12px;
   color: ${({ theme }: { theme: AppTheme }) => theme.text};
 `;
 
@@ -78,6 +75,7 @@ const FavoritesScreen = () => {
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   const [pagerIndex, setPagerIndex] = useState(0); // Add pager index state
+  const pagerViewRef = useRef<PagerView>(null);
 
   const clearAllFavorites = useCallback(async () => {
     Alert.alert(
@@ -197,17 +195,18 @@ const FavoritesScreen = () => {
   return (
     <Container style={{ paddingTop: headerHeight - 10 }}>
       <TabContainer>
-        <TabButton isActive={activeTab === 'music'} onPress={() => { setActiveTab('music'); setPagerIndex(0); }}>
+        <TabButton isActive={activeTab === 'music'} onPress={() => { setActiveTab('music'); pagerViewRef.current?.setPage(0); }}>
           <TabButtonText isActive={activeTab === 'music'}>音乐</TabButtonText>
         </TabButton>
-        <TabButton isActive={activeTab === 'articles'} onPress={() => { setActiveTab('articles'); setPagerIndex(1); }}>
+        <TabButton isActive={activeTab === 'articles'} onPress={() => { setActiveTab('articles'); pagerViewRef.current?.setPage(1); }}>
           <TabButtonText isActive={activeTab === 'articles'}>文章</TabButtonText>
         </TabButton>
       </TabContainer>
 
       <PagerView
+        ref={pagerViewRef}
         style={{ flex: 1 }}
-        initialPage={pagerIndex}
+        initialPage={0}
         onPageSelected={e => {
           setPagerIndex(e.nativeEvent.position);
           setActiveTab(e.nativeEvent.position === 0 ? 'music' : 'articles');

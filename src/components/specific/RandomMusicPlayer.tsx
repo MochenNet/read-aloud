@@ -188,7 +188,7 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
               color: colors.text,
             }}
           >
-            {currentTrack ? currentTrack.title : '点击播放音乐'}
+            {currentTrack ? currentTrack.title : '点击刷新/播放按钮'}
           </Animated.Text>
         </ScrollView>
       </TrackInfo>
@@ -196,15 +196,16 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
         <ControlButton onPress={handlePlayPause}>
           <Ionicons name={isPlaying ? 'pause' : 'play'} size={24} color={'blue'} />
         </ControlButton>
-        <ControlButton onPress={onRandomize}>
-          <Ionicons name="refresh-outline" size={24} color={'green'} />
-        </ControlButton>
         {/* 新增收藏按钮 */}
         {currentTrack && ( // 只有当前有音乐时才显示收藏按钮
           <ControlButton onPress={toggleFavorite}>
             <Ionicons name={isFavorite ? 'heart' : 'heart-outline'} size={24} color={'red'} />
           </ControlButton>
         )}
+        <ControlButton onPress={onRandomize}>
+          <Ionicons name="refresh-outline" size={24} color={'green'} />
+        </ControlButton>
+        
       </Controls>
     </Container>
   );

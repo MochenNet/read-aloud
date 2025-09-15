@@ -208,7 +208,7 @@ const HomeScreen = () => {
   const renderContent = () => (
     <MainContent style={{ paddingTop: insets.top }}>
       <Header onPress={handleHeaderPress}>
-        <AppName>阅·声</AppName>
+        <AppName>乐·读</AppName>
         <DateDisplay>
           <Day>{day}</Day>
           <Month>/ {month}</Month>

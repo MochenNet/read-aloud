@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置 - 阅声</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body id="page-settings">
+    <div class="container">
+        <header>
+            <a href="me.html"><i class="fas fa-arrow-left"></i></a>
+            <div class="title">
+                <h1>设置</h1>
+            </div>
+        </header>
+        <main>
+            <div class="settings-group">
+                <h3 class="settings-group-title">外观</h3>
+                <div class="menu-list">
+                    <div class="menu-item theme-option" data-theme-value="light">
+                        <span>浅色模式</span>
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="menu-item theme-option" data-theme-value="dark">
+                        <span>深色模式</span>
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="menu-item theme-option" data-theme-value="system">
+                        <span>跟随系统</span>
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3 class="settings-group-title">阅读</h3>
+                <div class="menu-list">
+                    <div class="menu-item">
+                        <span>字体大小</span>
+                        <div class="segmented-control">
+                            <button class="segmented-control-option" data-font-size="small">小</button>
+                            <button class="segmented-control-option" data-font-size="medium">标准</button>
+                            <button class="segmented-control-option" data-font-size="large">大</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3 class="settings-group-title">数据</h3>
+                <div class="menu-list">
+                    <div class="menu-item" id="clear-cache-btn">
+                        <span>清除缓存</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

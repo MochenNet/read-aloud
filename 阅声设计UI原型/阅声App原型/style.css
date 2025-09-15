@@ -1,0 +1,523 @@
+:root {
+    --font-primary: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    
+    /* Font Sizes */
+    --font-size-small: 14px;
+    --font-size-medium: 16px;
+    --font-size-large: 18px;
+    --font-size-h2: 24px;
+    --font-size-h3: 22px;
+    --font-size-tip: 15px;
+
+    /* Light Theme Colors & Background */
+    --bg-color-start: #F4F2FF;
+    --bg-color-mid: #F2F7FF;
+    --bg-color-end: #B4DDE0;
+    --bg-color: var(--bg-color-mid);
+    --bg-image: radial-gradient(circle at top left, var(--bg-color-start), transparent 60%), radial-gradient(circle at bottom right, var(--bg-color-end), transparent 60%);
+    --text-color-primary: #2c3e50;
+    --text-color-secondary: #8e9eab;
+    --card-bg-color: rgba(255, 255, 255, 0.75);
+    --card-shadow: 0 6px 20px -15px rgba(44, 62, 80, 0.12);
+    --footer-gradient-start: rgba(242, 247, 255, 0.3);
+    --footer-gradient-end: rgba(242, 247, 255, 0.9);
+    --border-color: rgba(238, 242, 245, 0.8);
+    --accent-color: #B4DDE0;
+    --highlight-color: #83C5BE; /* Darker, more saturated version of accent color */
+    --selected-bg-color: #E8F0FF;
+    --reader-bg-color: #FDFDFD;
+}
+
+[data-font-size='small'] {
+    --font-size-small: 12px;
+    --font-size-medium: 14px;
+    --font-size-large: 16px;
+    --font-size-h2: 22px;
+    --font-size-h3: 20px;
+    --font-size-tip: 13px;
+}
+
+[data-font-size='large'] {
+    --font-size-small: 16px;
+    --font-size-medium: 18px;
+    --font-size-large: 20px;
+    --font-size-h2: 26px;
+    --font-size-h3: 24px;
+    --font-size-tip: 17px;
+}
+
+[data-theme='dark'] {
+    /* Dark Theme Colors & Background */
+    --bg-color: #121212;
+    --bg-image: none;
+    --text-color-primary: #e0e0e0;
+    --text-color-secondary: #9a9a9a;
+    --card-bg-color: #1e1e1e;
+    --card-shadow: 0 8px 25px -15px rgba(0, 0, 0, 0.4);
+    --footer-gradient-start: rgba(18, 18, 18, 0);
+    --footer-gradient-end: rgba(18, 18, 18, 0.9);
+    --border-color: #2a2a4a;
+    --accent-color: #B4DDE0;
+    --highlight-color: #B4DDE0;
+    --selected-bg-color: #2a2a4a;
+    --reader-bg-color: #181818;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);
+    background-color: var(--bg-color);
+    background-image: var(--bg-image);
+    background-attachment: fixed;
+    color: var(--text-color-primary);
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+.container {
+    width: 100%;
+    max-width: 414px;
+    margin: 0 auto;
+    background: transparent;
+    padding-bottom: 80px;
+}
+
+header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.4s ease;
+}
+
+.app-name, .title h1 {
+    font-size: 26px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.date-display {
+    text-align: right;
+}
+
+.date-display .day {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-color-primary);
+}
+
+.date-display .month {
+    font-size: 13px;
+    color: var(--text-color-secondary);
+    display: block;
+}
+
+main {
+    padding: 20px;
+    animation: fadeIn 0.6s ease-out;
+}
+
+.card {
+    background-color: var(--card-bg-color);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    margin-bottom: 25px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transform: translateY(0);
+    transition: background-color 0.4s ease, box-shadow 0.4s ease, transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px -15px rgba(44, 62, 80, 0.15);
+}
+
+.card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-content {
+    padding: 20px 25px;
+    position: relative;
+}
+
+.card-icon-actions {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+}
+
+.favorite-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.2);
+}
+
+.favorite-btn.favorited {
+    color: #e74c3c;
+}
+
+.card-content h2, .card-content h3 {
+    font-size: var(--font-size-h2);
+    font-weight: 500;
+    margin: 0 0 10px 0;
+    color: var(--text-color-primary);
+}
+
+.card-content p {
+    font-size: var(--font-size-medium);
+    line-height: 1.7;
+    color: var(--text-color-secondary);
+    font-weight: 300;
+}
+
+.player {
+    padding: 0 25px 20px 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.play-pause {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 12px -6px var(--accent-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.play-pause:active {
+    transform: scale(0.95);
+    box-shadow: none;
+}
+
+.read-full-btn {
+    background-color: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    height: 50px;
+    padding: 0 25px;
+    border-radius: 25px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.progress-container {
+    flex: 1;
+}
+
+.progress-bar {
+    background-color: var(--border-color);
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress {
+    background-color: var(--accent-color);
+    width: 0;
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.1s linear;
+}
+
+.time-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-color-secondary);
+    margin-top: 6px;
+    font-weight: 300;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: linear-gradient(to bottom, var(--footer-gradient-start), var(--footer-gradient-end));
+    border-top: none;
+    padding: 5px 0 15px 0;
+    transition: background 0.4s ease;
+}
+
+nav {
+    display: flex;
+    justify-content: space-around;
+    max-width: 414px;
+    margin: 0 auto;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--text-color-secondary);
+    font-size: 12px;
+    padding: 5px;
+    border-radius: 10px;
+    transition: color 0.3s ease, background-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-shadow: 0 0 3px rgba(0,0,0,0.1);
+}
+
+nav a i {
+    font-size: 20px;
+    margin-bottom: 2px;
+}
+
+nav a.active {
+    color: var(--highlight-color);
+    font-weight: 500;
+}
+
+/* User Profile & Menu List Styles */
+.user-profile {
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+}
+
+.weather-widget {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 0;
+    margin-bottom: 15px;
+}
+
+.weather-icon {
+    font-size: 48px;
+    color: var(--accent-color);
+}
+
+.weather-details {
+    text-align: left;
+}
+
+.weather-temp {
+    font-size: 36px;
+    font-weight: 500;
+    margin: 0;
+    color: var(--text-color-primary);
+}
+
+.weather-condition {
+    font-size: 18px;
+    margin: 0;
+    color: var(--text-color-secondary);
+}
+
+.weather-tip {
+    font-size: var(--font-size-tip);
+    color: var(--text-color-secondary);
+    line-height: 1.6;
+    padding: 0 10px;
+}
+
+.menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.menu-item {
+    background-color: var(--card-bg-color);
+    height: 68px;
+    padding: 0 20px;
+    border-radius: 15px;
+    text-decoration: none;
+    color: var(--text-color-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: var(--card-shadow);
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    transform: scale(1.02);
+}
+
+.menu-item span:first-child {
+    white-space: nowrap;
+}
+
+.menu-item span:not(:first-child) {
+    color: var(--text-color-secondary);
+    font-size: 14px;
+}
+
+/* Settings Page Styles */
+.settings-group {
+    margin-bottom: 30px;
+}
+
+.settings-group-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-color-secondary);
+    margin: 0 0 10px 15px;
+    text-transform: uppercase;
+}
+
+.menu-item .fa-check {
+    color: var(--highlight-color);
+    font-size: 18px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+.menu-item.active {
+    background-color: var(--selected-bg-color);
+}
+
+.menu-item.active .fa-check {
+    opacity: 1;
+}
+
+.segmented-control {
+    display: flex;
+    background-color: var(--border-color);
+    border-radius: 10px;
+    padding: 3px;
+    flex-basis: 60%;
+    justify-content: space-between;
+}
+
+.segmented-control-option {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 8px 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-color-secondary);
+    font-family: var(--font-primary);
+    font-size: var(--font-size-small);
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+}
+
+.segmented-control-option.active {
+    background-color: var(--bg-color);
+    color: var(--text-color-primary);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Follow Us Card */
+.follow-us-card {
+    background-color: var(--card-bg-color);
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--card-shadow);
+}
+
+.follow-us-card:hover {
+    transform: scale(1.02);
+}
+
+.follow-us-card .fa-weixin {
+    font-size: 28px;
+    color: #07C160;
+    margin-bottom: 10px;
+}
+
+.follow-us-main-text {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 14px;
+}
+
+.follow-us-id {
+    margin: 5px 0;
+    color: var(--text-color-primary);
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.follow-us-tip {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* Reader Page Styles */
+.reader-container {
+    background-color: var(--reader-bg-color);
+    height: 100vh;
+}
+
+.reader-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.back-btn {
+    color: var(--text-color-primary);
+    font-size: 22px;
+    text-decoration: none;
+}
+
+.reader-main {
+    padding: 0 30px;
+}
+
+.reader-title {
+    font-size: var(--font-size-h2);
+    font-weight: 500;
+    margin-bottom: 25px;
+    color: var(--text-color-primary);
+}
+
+.reader-content p {
+    font-size: var(--font-size-medium);
+    line-height: 2.0;
+    color: var(--text-color-secondary);
+}
