@@ -54,6 +54,10 @@ eas build -p android --profile preview
 *   自定义背景音乐
 *   离线阅读与收听
 
+## 项目预览
+
+* https://read.yuenet.top
+
 ## 联系我们
 
 我们珍视每一位用户的反馈。如果您有任何建议或问题，欢迎通过以下方式联系我们：
