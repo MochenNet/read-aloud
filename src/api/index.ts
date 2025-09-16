@@ -1,3 +1,5 @@
+import Toast from 'react-native-toast-message';
+
 export const fetchRandomImageUrl = async (): Promise<string | null> => {
   const apiUrl = 'https://api.dwo.cc/api/fj_pe';
   const controller = new AbortController();
@@ -24,6 +26,11 @@ export const fetchRandomImageUrl = async (): Promise<string | null> => {
   } catch (error) {
     clearTimeout(timeoutId);
     console.error('获取随机图片URL失败:', error);
+    Toast.show({
+      type: 'error',
+      text1: '图片加载失败',
+      text2: '请稍后再试',
+    });
     return null;
   }
 };
@@ -43,6 +50,21 @@ export const apiRequest = async <T>(url: string, options: RequestInit = {}): Pro
     } catch (error) {
         clearTimeout(timeoutId);
         console.error('API 请求失败:', error);
+        
+        let errorMessage = '请检查网络连接或稍后再试';
+        if (error instanceof Error) {
+            if (error.message.includes('Network request failed')) {
+                errorMessage = '请稍后再试';
+            } else if (error.message.includes('aborted')) {
+                errorMessage = '请稍后再试';
+            }
+        }
+
+        Toast.show({
+            type: 'error',
+            text1: '接口请求失败',
+            text2: errorMessage,
+        });
         return null;
     }
 };
@@ -64,6 +86,7 @@ export const fetchRandomMusic = async (): Promise<{ title: string; url: string }
         console.error('无效的响应格式或状态码不是200:', data);
         return null;
     } catch (error) {
+        // The error is already handled and toasted in apiRequest, so we just log it here.
         console.error('获取随机音乐失败:', error);
         return null;
     }
