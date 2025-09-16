@@ -28,6 +28,8 @@ interface UserData {
   weatherData?: WeatherData;
   musicRefreshCount?: number;
   lastMusicRefreshDate?: string;
+  articleRefreshCount?: number;
+  lastArticleRefreshDate?: string;
 }
 
 // 定义Context的形状
@@ -40,6 +42,7 @@ interface UserDataContextData extends UserData {
   clearFavoriteArticles: () => void;
   clearFavoriteMusic: () => void;
   incrementMusicRefreshCount: () => boolean;
+  incrementArticleRefreshCount: () => boolean;
 }
 
 // 创建Context
@@ -53,6 +56,8 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     history: [],
     musicRefreshCount: 0,
     lastMusicRefreshDate: new Date().toISOString().split('T')[0],
+    articleRefreshCount: 0,
+    lastArticleRefreshDate: new Date().toISOString().split('T')[0],
   });
 
   useEffect(() => {
@@ -117,6 +122,10 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             loadedData.lastMusicRefreshDate = today;
             loadedData.musicRefreshCount = 0;
           }
+          if (loadedData.lastArticleRefreshDate !== today) {
+            loadedData.lastArticleRefreshDate = today;
+            loadedData.articleRefreshCount = 0;
+          }
           setUserData(loadedData);
         } else {
           // 如果没有保存的数据，确保设置了初始日期
@@ -124,6 +133,8 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             ...prevData,
             lastMusicRefreshDate: new Date().toISOString().split('T')[0],
             musicRefreshCount: 0,
+            lastArticleRefreshDate: new Date().toISOString().split('T')[0],
+            articleRefreshCount: 0,
           }));
         }
       } catch (error) {
@@ -216,7 +227,7 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       currentCount = 0;
     }
 
-    if (currentCount >= 10) {
+    if (currentCount >= 5) {
       Toast.show({
         type: 'error',
         text1: '今日音乐达上限',
@@ -236,6 +247,36 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return true; // 表示刷新成功
   };
 
+  const incrementArticleRefreshCount = () => {
+    const today = new Date().toISOString().split('T')[0];
+    let currentCount = userData.articleRefreshCount || 0;
+    let lastDate = userData.lastArticleRefreshDate;
+
+    if (lastDate !== today) {
+      lastDate = today;
+      currentCount = 0;
+    }
+
+    if (currentCount >= 10) {
+      Toast.show({
+        type: 'error',
+        text1: '今日文章达上限',
+        text2: '请明天再试',
+      });
+      return false;
+    }
+
+    const newCount = currentCount + 1;
+    const newUserData = {
+      ...userData,
+      articleRefreshCount: newCount,
+      lastArticleRefreshDate: lastDate,
+    };
+    setUserData(newUserData);
+    saveData(newUserData);
+    return true;
+  };
+
   return (
     <UserDataContext.Provider
       value={{
@@ -248,6 +289,7 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         clearFavoriteArticles,
         clearFavoriteMusic,
         incrementMusicRefreshCount,
+        incrementArticleRefreshCount,
       }}
     >
       {children}

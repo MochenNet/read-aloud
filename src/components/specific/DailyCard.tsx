@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Article } from '../../types/article';
+import { useUserData } from '../../contexts/UserDataContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface DailyCardProps {
@@ -87,6 +88,7 @@ const MarqueeText: React.FC<MarqueeTextProps> = ({ text, style }) => {
 
 const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize, onShare, onToggleFavorite, isFavorite, isRandomizing }) => {
   const { isDarkMode, colors } = useTheme();
+  const { incrementArticleRefreshCount } = useUserData();
   const [currentArticle, setCurrentArticle] = useState(article);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -126,14 +128,16 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handleRandomizePress = () => {
-    onRandomize();
-    rotationAnim.setValue(0);
-    Animated.timing(rotationAnim, {
-      toValue: 1,
-      duration: 300,
-      easing: Easing.linear,
-      useNativeDriver: true,
-    }).start();
+    if (incrementArticleRefreshCount()) {
+      onRandomize();
+      rotationAnim.setValue(0);
+      Animated.timing(rotationAnim, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }).start();
+    }
   };
 
   const onPressIn = () => {
