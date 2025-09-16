@@ -10,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons'; // 重新导入 Ionicons
 import { useNavigation } from '@react-navigation/native'; // 导入 useNavigation
 import { useUserData } from '../../contexts/UserDataContext';
 import PagerView from 'react-native-pager-view'; // 导入 PagerView
+import { useAudio } from '../../contexts/AudioContext'; // 导入 useAudio
 
 interface FavoriteItem {
  id: string;
@@ -82,6 +83,7 @@ const FavoritesScreen = () => {
 
   const [activeTab, setActiveTab] = useState<'music' | 'articles'>('music');
   const navigation = useNavigation();
+  const { play } = useAudio(); // 获取 play 方法
   const [pagerIndex, setPagerIndex] = useState(0); // Add pager index state
   const pagerViewRef = useRef<PagerView>(null);
 
@@ -103,19 +105,19 @@ const FavoritesScreen = () => {
   };
 
   const handleItemPress = useCallback(async (item: FavoriteItem) => {
-   if (item.type === 'article') {
-     // @ts-ignore
-     navigation.navigate('Reader', { articleId: item.id });
-   } else {
-     // For music, copy the title
-     await Clipboard.setStringAsync(item.title);
-     Toast.show({
-       type: 'success',
-       text1: '已复制',
-       text2: '标题已复制到剪贴板',
-     });
-   }
- }, [navigation]);
+    if (item.type === 'article') {
+      // @ts-ignore
+      navigation.navigate('Reader', { articleId: item.id });
+    } else {
+      // 点击音乐项目时，直接播放
+      play({
+        id: item.id, // id 是播放链接
+        title: item.title,
+        url: item.id, // url 也是播放链接
+        artist: '未知艺术家', // 添加默认的 artist
+      });
+    }
+  }, [navigation, play]);
 
   const clearAllFavorites = useCallback(() => {
     Alert.alert(

@@ -40,7 +40,7 @@ const AboutScreen = () => {
   return (
     <Container style={{ paddingTop: headerHeight }}>
       <AppName>乐  读</AppName>
-      <VersionText>版本 1.0.0</VersionText>
+      <VersionText>版本 1.0.1</VersionText>
       <DescriptionText>
         {"\u3000\u3000"}本应用源自“钢琴书屋”，用音乐 + 文字的展示形式，打造一个心灵的避风港。
       </DescriptionText>
@@ -48,7 +48,7 @@ const AboutScreen = () => {
         {"\u3000\u3000"}在这里，音乐轻柔流淌，文字洗涤灵魂，让您在阅读中沉思，在思考中享受生活，寻回内心的宁静与力量。
       </DescriptionText>
       <DescriptionText>
-        {"\u3000\u3000"}本软件完全免费，无广告，无追踪，无隐私。
+        {"\u3000\u3000"}本软件完全免费，无广告，无追踪。
       </DescriptionText>
       <DescriptionText>
         {"\u3000\u3000"}致力于提供一个纯粹、沉浸的阅读与声音体验。

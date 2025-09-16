@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, LayoutChangeEvent, ScrollView, Text, TouchableOpacity, Pressable } from 'react-native';
+import { Animated, Easing, LayoutChangeEvent, ScrollView, Text, TouchableOpacity, Pressable, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import Toast from 'react-native-toast-message';
@@ -175,7 +175,7 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
       onPressOut={onPressOut}
     >
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-        <Container>
+        <Container style={Platform.OS === 'web' && { width: 340, alignSelf: 'center' }}>
           <TrackInfo onLayout={(event: LayoutChangeEvent) => setContainerWidth(event.nativeEvent.layout.width)}>
             <ScrollView
               ref={scrollViewRef}
