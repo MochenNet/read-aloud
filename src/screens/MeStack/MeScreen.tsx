@@ -129,7 +129,7 @@ const getStyles = (colors: AppTheme) => StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: 'rgba(0,0,0,0.5)'
+    backgroundColor: 'rgba(0, 0, 0, 0.6)'
   },
   modalView: {
     margin: 20,
@@ -162,6 +162,13 @@ const getStyles = (colors: AppTheme) => StyleSheet.create({
     color: colors.text,
     borderColor: colors.borderColor,
   },
+  errorText: {
+    color: 'red',
+    height: 20,
+    marginBottom: 5,
+    textAlign: 'center',
+    width: '100%',
+  },
   button: {
     borderRadius: 20,
     padding: 10,
@@ -188,9 +195,15 @@ const MeScreen = () => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const [modalVisible, setModalVisible] = useState(false);
   const [activationCode, setActivationCode] = useState("");
+  const [errorText, setErrorText] = useState("");
 
   const handleActivate = () => {
+    if (activationCode.trim() === '') {
+      setErrorText('请输入激活码');
+      return;
+    }
     if (activationCode === 'YDsZkTbTd6Sf') {
+      setErrorText('');
       const newUserData = { ...userData, isVip: true };
       setUserData(newUserData);
       saveData(newUserData);
@@ -201,7 +214,7 @@ const MeScreen = () => {
         text2: '您已获得无限阅读权限',
       });
     } else {
-      Alert.alert("激活码不正确");
+      setErrorText('激活码不正确');
     }
   };
 
@@ -342,25 +355,31 @@ const MeScreen = () => {
           setModalVisible(!modalVisible);
         }}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.centeredView}>
+        <Pressable style={styles.centeredView} onPress={() => setModalVisible(false)}>
+          <TouchableWithoutFeedback>
             <View style={styles.modalView}>
               <Text style={styles.modalTitle}>永久无限阅读</Text>
               <Pressable onLongPress={() => copyToClipboard('阅读兑换码')}>
                 <Text style={styles.modalText}>
-                  {"\n"}限制次数原因：服务器压力太大，没有资金升级，如果您需要不受限制，可以通过兑换码自行升级。{"\n"}
+                  {"\n"}限制阅读次数原因：服务器压力太大，没有资金升级，如果您需要不受限制，可以通过兑换码自行升级。{"\n"}
                   关注公众号<Text style={{color: '#bc941cc8', fontWeight: 'bold'}}>（易悦网络）</Text>后，回复<Text style={{color: colors.primaryColor, fontWeight: 'bold'}}>“阅读激活码”</Text>免费获取激活码。
                   
                   {"\n"}(长按可复制关键词)
                 </Text>
               </Pressable>
               
+              <Text style={styles.errorText}>{errorText}</Text>
               <TextInput
                 style={styles.input}
                 placeholder="在此输入激活码"
                 placeholderTextColor={colors.subtleText}
                 value={activationCode}
-                onChangeText={setActivationCode}
+                onChangeText={(text) => {
+                  setActivationCode(text);
+                  if (errorText) {
+                    setErrorText("");
+                  }
+                }}
               />
               <TouchableOpacity
                 style={[styles.button, { backgroundColor: colors.primaryColor }]}
@@ -376,8 +395,8 @@ const MeScreen = () => {
                 <Text style={styles.textStyle}>关闭</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </TouchableWithoutFeedback>
+          </TouchableWithoutFeedback>
+        </Pressable>
       </Modal>
 
     </Container>

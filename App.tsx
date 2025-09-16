@@ -79,16 +79,14 @@ export default function App() {
 
   // 渲染主应用
   return (
-    <>
-      <SafeAreaProvider>
-        <ThemeProvider>
-          <UserDataProvider>
-            <StatusBar style="auto" translucent={true} />
-            <AppNavigator />
-          </UserDataProvider>
-        </ThemeProvider>
-      </SafeAreaProvider>
-      <Toast config={toastConfig} visibilityTime={800} />
-    </>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <UserDataProvider>
+          <StatusBar style="auto" translucent={true} />
+          <AppNavigator />
+          <Toast config={toastConfig} visibilityTime={800} />
+        </UserDataProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
