@@ -49,7 +49,7 @@ interface RandomMusicPlayerProps {
 const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) => {
   const { currentTrack, isPlaying, play, pause } = useAudio();
   const { colors } = useTheme();
-  const { isMusicFavorite, toggleMusicFavorite } = useUserData();
+  const { isMusicFavorite, toggleMusicFavorite, incrementMusicRefreshCount } = useUserData();
 
   const [isLoading, setIsLoading] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -137,19 +137,22 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handleRandomizePress = () => {
-    setIsLoading(true);
-    setIsLoading(true);
-    onRandomize(() => {
-      setIsLoading(false);
-    });
-    rotationAnim.setValue(0);
-    Animated.timing(rotationAnim, {
-      toValue: 1,
-      duration: 300,
-      easing: Easing.linear,
-      useNativeDriver: true,
-    }).start();
-  };
+   // 首先检查是否可以刷新
+   if (incrementMusicRefreshCount()) {
+     setIsLoading(true);
+     onRandomize(() => {
+       setIsLoading(false);
+     });
+     rotationAnim.setValue(0);
+     Animated.timing(rotationAnim, {
+       toValue: 1,
+       duration: 300,
+       easing: Easing.linear,
+       useNativeDriver: true,
+     }).start();
+   }
+   // 如果达到上限，incrementMusicRefreshCount内部会显示Toast，这里无需做任何事
+ };
 
   const onPressIn = () => {
     Animated.timing(scaleAnim, {

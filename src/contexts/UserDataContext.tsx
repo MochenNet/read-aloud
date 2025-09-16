@@ -26,6 +26,8 @@ interface UserData {
   favoriteMusic: FavoriteItem[];
   history: string[];
   weatherData?: WeatherData;
+  musicRefreshCount?: number;
+  lastMusicRefreshDate?: string;
 }
 
 // 定义Context的形状
@@ -37,6 +39,7 @@ interface UserDataContextData extends UserData {
   addToHistory: (itemId: string) => void;
   clearFavoriteArticles: () => void;
   clearFavoriteMusic: () => void;
+  incrementMusicRefreshCount: () => boolean;
 }
 
 // 创建Context
@@ -48,6 +51,8 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     favoriteArticles: [],
     favoriteMusic: [],
     history: [],
+    musicRefreshCount: 0,
+    lastMusicRefreshDate: new Date().toISOString().split('T')[0],
   });
 
   useEffect(() => {
@@ -106,7 +111,20 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           // 确保收藏字段始终是数组，防止undefined错误
           loadedData.favoriteArticles = loadedData.favoriteArticles || [];
           loadedData.favoriteMusic = loadedData.favoriteMusic || [];
+          // 初始化刷新计数
+          const today = new Date().toISOString().split('T')[0];
+          if (loadedData.lastMusicRefreshDate !== today) {
+            loadedData.lastMusicRefreshDate = today;
+            loadedData.musicRefreshCount = 0;
+          }
           setUserData(loadedData);
+        } else {
+          // 如果没有保存的数据，确保设置了初始日期
+          setUserData(prevData => ({
+            ...prevData,
+            lastMusicRefreshDate: new Date().toISOString().split('T')[0],
+            musicRefreshCount: 0,
+          }));
         }
       } catch (error) {
         console.error('从存储加载用户数据失败', error);
@@ -187,6 +205,37 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     saveData(newUserData);
   };
 
+  const incrementMusicRefreshCount = () => {
+    const today = new Date().toISOString().split('T')[0];
+    let currentCount = userData.musicRefreshCount || 0;
+    let lastDate = userData.lastMusicRefreshDate;
+
+    // 如果不是今天，重置计数器
+    if (lastDate !== today) {
+      lastDate = today;
+      currentCount = 0;
+    }
+
+    if (currentCount >= 10) {
+      Toast.show({
+        type: 'error',
+        text1: '今日音乐达上限',
+        text2: '请明天再试',
+      });
+      return false; // 表示已达上限
+    }
+
+    const newCount = currentCount + 1;
+    const newUserData = {
+      ...userData,
+      musicRefreshCount: newCount,
+      lastMusicRefreshDate: lastDate,
+    };
+    setUserData(newUserData);
+    saveData(newUserData);
+    return true; // 表示刷新成功
+  };
+
   return (
     <UserDataContext.Provider
       value={{
@@ -198,6 +247,7 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         addToHistory,
         clearFavoriteArticles,
         clearFavoriteMusic,
+        incrementMusicRefreshCount,
       }}
     >
       {children}
