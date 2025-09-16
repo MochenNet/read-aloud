@@ -26,7 +26,16 @@
 ```
 eas build -p android --profile preview
 
+eas build --profile production --platform android
+
+
 npx expo export -p web
+
+更新
+eas update --auto
+
+eas update --branch production --message "修复了一些bug"
+
 
 ```
 

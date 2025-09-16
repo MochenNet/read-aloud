@@ -46,6 +46,12 @@
       "eas": {
         "projectId": "1fd11a51-a528-4631-ad73-e7b4c193b09a"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1fd11a51-a528-4631-ad73-e7b4c193b09a"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   },
   "web": {
@@ -57,9 +63,11 @@
       {
         "android": {
           "usesCleartextTraffic": true,
-          "networkSecurityConfig": "@/res/xml/network_security_config.xml"
+          "networkSecurityConfig": "@/res/xml/network_security_config.xml",
+          "kotlinVersion": "1.8.10"
         }
       }
-    ]
+    ],
+    "expo-updates"
   ]
 }

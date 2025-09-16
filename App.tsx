@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
+import { Alert } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import * as Updates from 'expo-updates';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { UserDataProvider } from './src/contexts/UserDataContext';
 import AppNavigator from './src/navigation';
@@ -71,6 +73,34 @@ export default function App() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    async function checkForUpdates() {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          Alert.alert(
+            '发现新版本',
+            '是否立即重启以应用更新？',
+            [
+              { text: '稍后', style: 'cancel' },
+              {
+                text: '立即重启',
+                onPress: async () => {
+                  await Updates.reloadAsync();
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        }
+      } catch (error) {
+        console.log('检查更新时出错:', error);
+      }
+    }
+    checkForUpdates();
+  }, []);
 
   // 如果字体正在加载且没有错误，则不渲染任何内容
   if (!fontsLoaded && !fontError) {
