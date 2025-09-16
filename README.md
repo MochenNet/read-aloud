@@ -25,6 +25,9 @@
 
 ```
 eas build -p android --profile preview
+
+npx expo export -p web
+
 ```
 
 ## 如何运行
