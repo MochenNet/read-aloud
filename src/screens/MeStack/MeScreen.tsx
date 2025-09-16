@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   Text,
   StyleSheet,
@@ -8,12 +8,17 @@ import {
   View,
   Animated,
   Pressable,
-  Easing
+  Easing,
+  Modal,
+  TextInput,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Alert
 } from "react-native";
 import { Linking } from "react-native";
 import styled from "styled-components/native";
-import Toast from 'react-native-toast-message'; // 导入 Toast
-import * as Clipboard from 'expo-clipboard'; // 导入 Clipboard
+import Toast from 'react-native-toast-message';
+import * as Clipboard from 'expo-clipboard';
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme, AppTheme } from "../../contexts/ThemeContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,7 +37,6 @@ const Container = styled(View)`
 
 const Header = styled.View`
   padding: 20px;
-  /* padding-top is handled by SafeAreaView */
 `;
 
 const WeatherWidget = styled.View`
@@ -120,12 +124,94 @@ const AbsoluteFill = styled(LinearGradient)`
   ${StyleSheet.absoluteFill}
 `;
 
+const getStyles = (colors: AppTheme) => StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: 'rgba(0,0,0,0.5)'
+  },
+  modalView: {
+    margin: 20,
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    width: '85%',
+    backgroundColor: Array.isArray(colors.background) ? colors.background[0] : colors.background,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: colors.text,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    color: colors.subtleText,
+    lineHeight: 22,
+  },
+  input: {
+    width: '100%',
+    height: 40,
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    backgroundColor: colors.cardBackground,
+    color: colors.text,
+    borderColor: colors.borderColor,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    width: '100%'
+  },
+  buttonClose: {
+    marginTop: 10,
+    backgroundColor: colors.wechatColor,
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+});
+
 const MeScreen = () => {
   const { isDarkMode, colors } = useTheme();
+  const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<StackNavigationProp<MeStackParamList>>();
-  const { weatherData } = useUserData();
+  const { weatherData, userData, setUserData, saveData } = useUserData();
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [activationCode, setActivationCode] = useState("");
+
+  const handleActivate = () => {
+    if (activationCode === 'YDsZkTbTd6Sf') {
+      const newUserData = { ...userData, isVip: true };
+      setUserData(newUserData);
+      saveData(newUserData);
+      setModalVisible(false);
+      Toast.show({
+        type: 'success',
+        text1: '激活成功',
+        text2: '您已获得无限阅读权限',
+      });
+    } else {
+      Alert.alert("激活码不正确");
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    await Clipboard.setStringAsync(text);
+    Toast.show({
+      type: 'success',
+      text1: '已复制到剪贴板',
+    });
+  };
 
   const onPressIn = () => {
     Animated.timing(scaleAnim, {
@@ -198,7 +284,7 @@ const MeScreen = () => {
               <FontAwesome5 name="weixin" size={40} color={colors.wechatColor} />
               <FollowUsMainText>{'关注我们的公众号'}</FollowUsMainText>
               <FollowUsId>{'易悦网络'}</FollowUsId>
-              <FollowUsTip>{'点击此处可复制'}</FollowUsTip>
+              <FollowUsTip>{'点击可复制'}</FollowUsTip>
             </FollowUsCardView>
           </Animated.View>
         </Pressable>
@@ -215,16 +301,28 @@ const MeScreen = () => {
             <MenuItemText>{'应用设置'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
+          <MenuItem onPress={() => {
+            if (userData.isVip) {
+              Toast.show({
+                type: 'info',
+                text1: '您已永久激活',
+              });
+            } else {
+              setModalVisible(true)
+            }
+          }}>
+            <Ionicons name="ribbon-outline" size={24} color={colors.text} />
+            <MenuItemText>
+              {userData.isVip ? '无限阅读' : '提升上限'}
+            </MenuItemText>
+            <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
+          </MenuItem>
           <MenuItem onPress={() => Linking.openURL('https://www.123pan.com/s/csSaTd-6Yxw3.html')}>
             <Ionicons name="apps-outline" size={24} color={colors.text} />
             <MenuItemText>{'更多推荐'}</MenuItemText>
             <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
           </MenuItem>
-          <MenuItem onPress={() => Linking.openURL('https://start.yuenet.top/')}>
-            <Ionicons name="home-outline" size={24} color={colors.text} />
-            <MenuItemText>{'我的主页'}</MenuItemText>
-            <Ionicons name="chevron-forward" size={20} color={colors.subtleText} />
-          </MenuItem>
+          
           <MenuItem onPress={() => navigation.navigate('About')} style={{ borderBottomWidth: 0 }}>
             <Ionicons name="information-circle-outline" size={24} color={colors.text} />
             <MenuItemText>{'关于我们'}</MenuItemText>
@@ -235,6 +333,53 @@ const MeScreen = () => {
 
         
       </ScrollView>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalTitle}>永久无限阅读</Text>
+              <Pressable onLongPress={() => copyToClipboard('阅读兑换码')}>
+                <Text style={styles.modalText}>
+                  {"\n"}限制次数原因：服务器压力太大，没有资金升级，如果您需要不受限制，可以通过兑换码自行升级。{"\n"}
+                  关注公众号<Text style={{color: '#bc941cc8', fontWeight: 'bold'}}>（易悦网络）</Text>后，回复<Text style={{color: colors.primaryColor, fontWeight: 'bold'}}>“阅读激活码”</Text>免费获取激活码。
+                  
+                  {"\n"}(长按可复制关键词)
+                </Text>
+              </Pressable>
+              
+              <TextInput
+                style={styles.input}
+                placeholder="在此输入激活码"
+                placeholderTextColor={colors.subtleText}
+                value={activationCode}
+                onChangeText={setActivationCode}
+              />
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: colors.primaryColor }]}
+                onPress={handleActivate}
+              >
+                <Text style={styles.textStyle}>兑换</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose]}
+                onPress={() => setModalVisible(!modalVisible)}
+              >
+                <Text style={styles.textStyle}>关闭</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
     </Container>
   );
 };

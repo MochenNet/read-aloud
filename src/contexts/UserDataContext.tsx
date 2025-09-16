@@ -30,10 +30,25 @@ interface UserData {
   lastMusicRefreshDate?: string;
   articleRefreshCount?: number;
   lastArticleRefreshDate?: string;
+  isVip?: boolean;
 }
 
 // 定义Context的形状
-interface UserDataContextData extends UserData {
+interface UserDataContextData {
+  weatherData?: WeatherData;
+  favoriteArticles: FavoriteItem[];
+  favoriteMusic: FavoriteItem[];
+  history: string[];
+  musicRefreshCount?: number;
+  lastMusicRefreshDate?: string;
+  articleRefreshCount?: number;
+  lastArticleRefreshDate?: string;
+  isVip?: boolean;
+  
+  userData: UserData;
+  setUserData: React.Dispatch<React.SetStateAction<UserData>>;
+  saveData: (data: UserData) => Promise<void>;
+
   toggleArticleFavorite: (article: { id: string; title: string }) => void;
   toggleMusicFavorite: (track: { id: string; title: string }) => void;
   isArticleFavorite: (articleId: string) => boolean;
@@ -280,7 +295,10 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   return (
     <UserDataContext.Provider
       value={{
-        ...userData,
+        ...userData, // keep spreading userData for backward compatibility
+        userData,
+        setUserData,
+        saveData,
         toggleArticleFavorite,
         toggleMusicFavorite,
         isArticleFavorite,
