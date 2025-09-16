@@ -49,7 +49,7 @@ interface RandomMusicPlayerProps {
 const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) => {
   const { currentTrack, isPlaying, play, pause } = useAudio();
   const { colors } = useTheme();
-  const { isMusicFavorite, toggleMusicFavorite, incrementMusicRefreshCount } = useUserData();
+  const { userData, isMusicFavorite, toggleMusicFavorite, incrementMusicRefreshCount } = useUserData();
 
   const [isLoading, setIsLoading] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -137,8 +137,7 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handleRandomizePress = () => {
-   // 首先检查是否可以刷新
-   if (incrementMusicRefreshCount()) {
+   const performRandomize = () => {
      setIsLoading(true);
      onRandomize(() => {
        setIsLoading(false);
@@ -150,8 +149,16 @@ const RandomMusicPlayer: React.FC<RandomMusicPlayerProps> = ({ onRandomize }) =>
        easing: Easing.linear,
        useNativeDriver: true,
      }).start();
+   };
+
+   if (userData.isVip) {
+     performRandomize();
+   } else {
+     // 如果达到上限，incrementMusicRefreshCount内部会显示Toast
+     if (incrementMusicRefreshCount()) {
+       performRandomize();
+     }
    }
-   // 如果达到上限，incrementMusicRefreshCount内部会显示Toast，这里无需做任何事
  };
 
   const onPressIn = () => {

@@ -88,7 +88,7 @@ const MarqueeText: React.FC<MarqueeTextProps> = ({ text, style }) => {
 
 const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRandomize, onShare, onToggleFavorite, isFavorite, isRandomizing }) => {
   const { isDarkMode, colors } = useTheme();
-  const { incrementArticleRefreshCount } = useUserData();
+  const { userData, incrementArticleRefreshCount } = useUserData();
   const [currentArticle, setCurrentArticle] = useState(article);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -128,7 +128,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handleRandomizePress = () => {
-    if (incrementArticleRefreshCount()) {
+    const performRandomize = () => {
       onRandomize();
       rotationAnim.setValue(0);
       Animated.timing(rotationAnim, {
@@ -137,6 +137,14 @@ const DailyCard: React.FC<DailyCardProps> = ({ article, onPlay, onPress, onRando
         easing: Easing.linear,
         useNativeDriver: true,
       }).start();
+    };
+
+    if (userData.isVip) {
+      performRandomize();
+    } else {
+      if (incrementArticleRefreshCount()) {
+        performRandomize();
+      }
     }
   };
 
