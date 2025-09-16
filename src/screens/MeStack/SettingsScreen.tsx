@@ -5,6 +5,7 @@ import { useTheme, AppTheme } from '../../contexts/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HeaderTitle, useHeaderHeight } from '@react-navigation/elements';
 import { Ionicons } from '@expo/vector-icons';
+import { useUserData } from '../../contexts/UserDataContext';
 
 const Container = styled.ScrollView`
   flex: 1;
@@ -68,6 +69,8 @@ const SettingsScreen = () => {
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const { setScheme, scheme } = useTheme();
+  const { userData, setFontSize } = useUserData();
+  const fontSize = userData.fontSize || 'standard';
 
   return (
     <Container contentContainerStyle={{ paddingTop: headerHeight - 30, paddingBottom: insets.bottom }}>
@@ -85,6 +88,25 @@ const SettingsScreen = () => {
               </SegmentedOption>
               <SegmentedOption isActive={scheme === 'dark'} onPress={() => setScheme('dark')}>
                 <SegmentedText isActive={scheme === 'dark'}>深色</SegmentedText>
+              </SegmentedOption>
+            </SegmentedControl>
+          </MenuItem>
+        </MenuList>
+      </Section>
+
+      <Section>
+        <SectionTitle>阅读字号大小</SectionTitle>
+        <MenuList>
+          <MenuItem>
+            <SegmentedControl>
+              <SegmentedOption isActive={fontSize === 'small'} onPress={() => setFontSize('small')}>
+                <SegmentedText isActive={fontSize === 'small'}>小</SegmentedText>
+              </SegmentedOption>
+              <SegmentedOption isActive={fontSize === 'standard'} onPress={() => setFontSize('standard')}>
+                <SegmentedText isActive={fontSize === 'standard'}>中</SegmentedText>
+              </SegmentedOption>
+              <SegmentedOption isActive={fontSize === 'large'} onPress={() => setFontSize('large')}>
+                <SegmentedText isActive={fontSize === 'large'}>大</SegmentedText>
               </SegmentedOption>
             </SegmentedControl>
           </MenuItem>

@@ -3,6 +3,7 @@ import { View, StyleSheet } from "react-native";
 import styled from "styled-components/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme, AppTheme } from "../../contexts/ThemeContext";
+import { useUserData } from "../../contexts/UserDataContext";
 import { articles } from "../../data/articles";
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { HomeStackParamList } from '../../navigation';
@@ -41,9 +42,9 @@ const Author = styled.Text`
   text-align: right;
 `;
 
-const Paragraph = styled.Text`
-  font-size: 18px;
-  line-height: 30px;
+const Paragraph = styled.Text<{ fontSize: number }>`
+  font-size: ${({ fontSize }: { fontSize: number }) => fontSize}px;
+  line-height: ${({ fontSize }: { fontSize: number }) => fontSize * 1.7}px;
   letter-spacing: 0.5px;
   color: ${({ theme }: { theme: AppTheme }) => theme.text};
   font-family: ${FONT_FAMILY};
@@ -58,10 +59,24 @@ const Spacer = styled.View`
 // --- Component ---
 const ReaderScreen = () => {
   const { colors, isDarkMode } = useTheme();
+  const { userData } = useUserData();
   const navigation = useNavigation();
   const route = useRoute<ReaderScreenRouteProp>();
   const { articleId } = route.params;
   const headerHeight = useHeaderHeight();
+
+  const getFontSize = () => {
+    switch (userData.fontSize) {
+      case 'small':
+        return 16;
+      case 'large':
+        return 20;
+      case 'standard':
+      default:
+        return 18;
+    }
+  };
+  const paragraphFontSize = getFontSize();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -98,7 +113,7 @@ const ReaderScreen = () => {
       <Title>{article.title}</Title>
       <Author>—— {article.author}</Author>
       {bodyParagraphs.map((p, index) => (
-        <Paragraph key={index}>{p}</Paragraph>
+        <Paragraph key={index} fontSize={paragraphFontSize}>{p}</Paragraph>
       ))}
       <Spacer />
     </ContentContainer>

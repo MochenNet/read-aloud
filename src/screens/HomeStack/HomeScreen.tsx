@@ -312,8 +312,8 @@ const modalStyles = StyleSheet.create({
     marginHorizontal: 20,
     backgroundColor: 'rgba(0, 0, 0, 0.5)', // 深色半透明背景
     borderRadius: 10, // 圆角为20
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: 'transparent', // 去掉阴影

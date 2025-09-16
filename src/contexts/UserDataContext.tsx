@@ -31,6 +31,7 @@ interface UserData {
   articleRefreshCount?: number;
   lastArticleRefreshDate?: string;
   isVip?: boolean;
+  fontSize?: 'small' | 'standard' | 'large';
 }
 
 // 定义Context的形状
@@ -44,10 +45,12 @@ interface UserDataContextData {
   articleRefreshCount?: number;
   lastArticleRefreshDate?: string;
   isVip?: boolean;
+  fontSize?: 'small' | 'standard' | 'large';
   
   userData: UserData;
   setUserData: React.Dispatch<React.SetStateAction<UserData>>;
   saveData: (data: UserData) => Promise<void>;
+  setFontSize: (size: 'small' | 'standard' | 'large') => void;
 
   toggleArticleFavorite: (article: { id: string; title: string }) => void;
   toggleMusicFavorite: (track: { id: string; title: string }) => void;
@@ -73,6 +76,7 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     lastMusicRefreshDate: new Date().toISOString().split('T')[0],
     articleRefreshCount: 0,
     lastArticleRefreshDate: new Date().toISOString().split('T')[0],
+    fontSize: 'standard',
   });
 
   useEffect(() => {
@@ -292,6 +296,12 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return true;
   };
 
+  const setFontSize = (size: 'small' | 'standard' | 'large') => {
+    const newUserData = { ...userData, fontSize: size };
+    setUserData(newUserData);
+    saveData(newUserData);
+  };
+
   return (
     <UserDataContext.Provider
       value={{
@@ -299,6 +309,7 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         userData,
         setUserData,
         saveData,
+        setFontSize,
         toggleArticleFavorite,
         toggleMusicFavorite,
         isArticleFavorite,

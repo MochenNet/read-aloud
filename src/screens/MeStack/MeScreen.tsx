@@ -137,22 +137,23 @@ const getStyles = (colors: AppTheme) => StyleSheet.create({
     padding: 35,
     alignItems: "center",
     width: '85%',
-    backgroundColor: Array.isArray(colors.background) ? colors.background[0] : colors.background,
+    backgroundColor: Array.isArray(colors.background) ? colors.background[1] : colors.background,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: 5,
     color: colors.text,
   },
   modalText: {
+    width: 260,
     marginBottom: 15,
     textAlign: "center",
     color: colors.subtleText,
     lineHeight: 22,
   },
   input: {
-    width: '100%',
+    width: 260,
     height: 40,
     borderWidth: 1,
     borderRadius: 5,
@@ -173,7 +174,7 @@ const getStyles = (colors: AppTheme) => StyleSheet.create({
     borderRadius: 20,
     padding: 10,
     elevation: 2,
-    width: '100%'
+    width: 260
   },
   buttonClose: {
     marginTop: 10,
